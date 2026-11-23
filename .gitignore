@@ -1,0 +1,6 @@
+.venv-soma/
+dist/
+assets/
+vorschau/
+__pycache__/
+*.pyc
