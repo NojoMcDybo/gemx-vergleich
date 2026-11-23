@@ -412,12 +412,22 @@ def install_update(st):
     return len(files)
 
 
+restarting = threading.Event()
+
+
 def restart(srv):
-    """Start this program again with the new files; the open window reloads once it answers.
+    """Stop serving so main() starts the program again with the new files."""
+    time.sleep(0.5)  # let the answer reach the page
+    restarting.set()
+    srv.shutdown()
+
+
+def start_again(srv):
+    """Called by main() once the server stopped for an update: the new process takes the port
+    and the open window reloads once it answers. Runs in the main thread, because the request
+    threads are daemons and would die with it before the new process is started.
     shortcut: the new process cannot wait for the old Edge window, so after an update it ends
     through the watchdog (~3 min after the window closes) instead of at once."""
-    time.sleep(0.5)  # let the answer reach the page
-    srv.shutdown()
     srv.server_close()
     (DATA_DIR / "server.json").unlink(missing_ok=True)
     args = [a for a in sys.orig_argv[1:] if a != "--after-update"]
@@ -657,6 +667,8 @@ def main():
             threading.Thread(target=close_with, args=(proc, srv), daemon=True).start()
         threading.Thread(target=watchdog, args=(srv,), daemon=True).start()  # backstop, e.g. Edge kept running
     srv.serve_forever()
+    if restarting.is_set():
+        start_again(srv)
 
 
 if __name__ == "__main__":
