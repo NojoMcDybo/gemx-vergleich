@@ -1324,6 +1324,7 @@ function drawDrawer() {
   $("#dBa").hidden = !ag;
   ev.baPts = null;
   if (ev.ba && ag) return drawBa(g, w, h, an, ax, ag, j);
+  const geo = ev.grGeo = { split: ax ? h * 0.58 : 0, dep: null, err: null };  // for the Kurzhilfe
   const err = s ? jointErr(j) : null, dep = s ? jointDepth(j) : null;
   g.fillStyle = "rgba(255,121,113,.13)";
   flipBands(j).forEach((f, i) => f && g.fillRect((s.k0 + i) / N * w, 0, Math.max(1.5, w / N), h));
@@ -1334,6 +1335,8 @@ function drawDrawer() {
     err.forEach((v, i) => g.lineTo(X(s.k0 + i), y0 - v / hi * hh)); g.lineTo(X(s.k0 + err.length - 1), y0); g.closePath();
     const grad = g.createLinearGradient(0, y0 - hh, 0, y0); grad.addColorStop(0, "rgba(117,184,255,.45)"); grad.addColorStop(1, "rgba(117,184,255,.04)");
     g.fillStyle = grad; g.fill();
+    geo.err = err.map((v, i) => [X(s.k0 + i), y0 - v / hi * hh]);
+    if (dep) geo.dep = dep.map((v, i) => [X(s.k0 + i), y0 - v / hi * hh]);
     if (dep) {  // depth part of the same distance, same scale: close to the area = error is mostly depth
       g.strokeStyle = css("--n-warn"); g.lineWidth = 1.4; g.beginPath();
       dep.forEach((v, i) => i ? g.lineTo(X(s.k0 + i), y0 - v / hi * hh) : g.moveTo(X(s.k0), y0 - v / hi * hh)); g.stroke();
@@ -1372,16 +1375,18 @@ function drawBa(g, w, h, an, ax, ag, j) {
     g.strokeStyle = col; g.lineWidth = 1.2; g.setLineDash(dash); g.beginPath(); g.moveTo(0, Y(v)); g.lineTo(w - R + 4, Y(v)); g.stroke(); g.setLineDash([]);
   };
   g.font = "10.5px " + css("--n-font");
-  hline(0, css("--n-faint"), [2, 3]);
-  const labels = [[hi, css("--n-warn"), [5, 4], `+1,96 SD ${sg(hi)}°`], [bias, css("--gx"), [], `Bias ${sg(bias)}°`],
-    [lo, css("--n-warn"), [5, 4], `−1,96 SD ${sg(lo)}°`]];
-  let last = -Infinity;  // top to bottom, at least one text line apart and inside the canvas
-  for (const [v, col, dash, text] of labels) {
+  // [value, colour, dash, label, help key]; drawn and labelled top to bottom
+  const lines = [[hi, css("--n-warn"), [5, 4], `+1,96 SD ${sg(hi)}°`, "baLoa"], [bias, css("--gx"), [], `Bias ${sg(bias)}°`, "baBias"],
+    [lo, css("--n-warn"), [5, 4], `−1,96 SD ${sg(lo)}°`, "baLoa"], [0, css("--n-faint"), [2, 3], "0° GemX = Xsens", "ba0"]].sort((a, b) => b[0] - a[0]);
+  const geo = ev.baGeo = { w, h, R, lines: [], labels: [], trend: null };
+  let last = -Infinity;  // at least one text line apart and inside the canvas
+  for (const [v, col, dash, text, key] of lines) {
     hline(v, col, dash);
     const y = Math.min(h - 4, Math.max(Y(v) + 4, last + 12, 11)); last = y;
     g.fillStyle = col; g.fillText(text, w - R + 10, y);
+    geo.lines.push([Y(v), key]); geo.labels.push([y - 4, key]);
   }
-  ev.baPts = m.map((v, i) => [X(v), Y(d[i]), k0 + i]);
+  ev.baPts = m.map((v, i) => [X(v), Y(d[i]), k0 + i, flips[i]]);
   g.fillStyle = css("--gx"); g.globalAlpha = 0.35;
   ev.baPts.forEach(([x, y], i) => { if (!flips[i]) { g.beginPath(); g.arc(x, y, 2, 0, 7); g.fill(); } });
   g.fillStyle = "rgb(255,121,113)"; g.globalAlpha = 0.6;
@@ -1389,6 +1394,7 @@ function drawBa(g, w, h, an, ax, ag, j) {
   g.globalAlpha = 1;
   g.strokeStyle = css("--n-ink"); g.lineWidth = 1; g.setLineDash([1, 3]); g.beginPath();  // trend
   g.moveTo(X(xa), Y(bias + slope * (xa - mm))); g.lineTo(X(xb), Y(bias + slope * (xb - mm))); g.stroke(); g.setLineDash([]);
+  geo.trend = [X(xa), Y(bias + slope * (xa - mm)), X(xb), Y(bias + slope * (xb - mm))];
   g.fillStyle = css("--n-faint"); g.fillText(`${num(xa)}°`, 4, h - 4); g.textAlign = "right"; g.fillText(`${num(xb)}° Ø beider Winkel`, w - R, h - 4); g.textAlign = "left";
   const i = gi(ev.k);
   if (i >= 0) { const [x, y] = ev.baPts[i]; g.strokeStyle = css("--n-ink"); g.lineWidth = 2; g.beginPath(); g.arc(x, y, 5, 0, 7); g.stroke(); }
@@ -1478,7 +1484,18 @@ const HELP = {
   flip: ["Vertauscht", "Anteil der Frames, in denen GemX linke und rechte Seite vertauscht (Beine oder Arme). Diese Frames sind in der Zeitleiste oben rot markiert."],
   jitter: ["Zittern", "Wie stark die GemX-Gelenke von Frame zu Frame beschleunigen, im Verhältnis zu Xsens. 1× wäre so ruhig wie Xsens. Grün bis 2×, rot ab 5×."],
   sync: ["Sync", "Wie gut die Gelenkwinkel an der automatisch gefundenen Startstelle zusammenpassen (mittlere Abweichung in Grad). Ab 15° ist der Zeitversatz unsicher; im Video prüfen."],
-  ba: ["Bland-Altman", "Schaltet den Gelenkverlauf auf einen Bland-Altman-Plot um: jeder Punkt ist ein Frame, nach rechts der Mittelwert aus GemX- und Xsens-Winkel, nach oben die Differenz GemX − Xsens. Die blaue Linie ist der mittlere Versatz (Bias), die gelben Linien die Grenzen, in denen 95 % der Differenzen liegen (Bias ± 1,96 SD). Die gepunktete Trendlinie zeigt, ob der Fehler mit dem Winkel wächst. Punkt antippen springt zu diesem Frame; rot sind vertauschte Frames."],
+  ba: ["Bland-Altman", "Schaltet den Gelenkverlauf zwischen Zeitverlauf und Bland-Altman-Plot um. Im Plot erklärt die Kurzhilfe jede Linie und jeden Punkt unter der Maus."],
+  baPlot: ["Bland-Altman-Plot", "Jeder Punkt ist ein Frame. Nach oben die Abweichung GemX − Xsens in diesem Frame, nach rechts, wie stark das Gelenk gerade gebeugt ist. So sieht man, wie groß der Fehler bei welcher Gelenkstellung ist."],
+  baPt: ["Ein Frame", "Höhe = Abweichung GemX − Xsens in diesem Frame (über der Nulllinie misst GemX mehr, darunter weniger). Lage nach rechts = Gelenkwinkel. Antippen springt zu diesem Frame."],
+  baPtFlip: ["Frame mit vertauschten Seiten", "In diesem Frame hat GemX linke und rechte Seite verwechselt; die Abweichung ist deshalb oft groß. Antippen springt zu diesem Frame."],
+  ba0: ["Nulllinie", "Hier messen GemX und Xsens denselben Winkel. Punkte darüber: GemX misst mehr, darunter: weniger. Der Abstand zur blauen Linie ist der systematische Versatz."],
+  baBias: ["Bias", "Mittlere Abweichung GemX − Xsens über alle Frames. Liegt sie neben der Nulllinie, misst GemX im Schnitt zu viel oder zu wenig; so ein Versatz ließe sich korrigieren."],
+  baLoa: ["95 %-Grenzen", "Bias ± 1,96 Standardabweichungen: Zwischen den beiden gelben Linien liegen etwa 95 % aller Frames. Sie zeigen, wie weit ein einzelner Frame danebenliegen kann, nach oben wie nach unten."],
+  baTrend: ["Trend", "Zeigt, ob der Fehler von der Gelenkstellung abhängt. Fällt die Linie nach rechts, unterschätzt GemX größere Winkel zunehmend, steigt sie, überschätzt es sie. Waagerecht heißt: gleicher Fehler bei jeder Stellung."],
+  baX: ["Waagerechte Achse", "Mittelwert aus GemX- und Xsens-Winkel, also wie stark das Gelenk gerade gebeugt ist: links gestreckter, rechts stärker gebeugt. Den Mittelwert nimmt man, weil keine der beiden Messungen als wahr gilt."],
+  graphAngle: ["Gelenkwinkel", "Winkel dieses Gelenks über die Zeit: weiß Xsens, blau GemX. Wo die Kurven auseinanderlaufen, misst GemX den Winkel anders."],
+  graphDist: ["Abstand", "Wie weit dieses Gelenk bei GemX pro Frame von Xsens entfernt ist (nach einer Ausrichtung für die ganze Aufnahme). Rot hinterlegt sind Frames mit vertauschten Seiten."],
+  graphDepth: ["Davon Tiefe", "Der Anteil des Abstands entlang der Blickrichtung der Videokamera. Liegt die Linie fast auf der Fläche, verschätzt sich GemX vor allem in der Entfernung zur Kamera; liegt sie weit darunter, liegt das Gelenk auch im Bild daneben."],
   tiefe: ["Tiefe", "Wie viel größer der Fehler des Beckens entlang der Blickrichtung der Kamera ist als quer dazu, je Achse gerechnet. 1× heißt: die Tiefe ist nicht schlechter als das Bild. Eine einzelne Kamera sieht Entfernungen schlecht, deshalb liegt der Wert meist darüber. Grün bis 1,5×, rot ab 3×. Die Millimeter stehen in der Auswertung. Pro Frame und Gelenk zeigt der Gelenkverlauf die Tiefe als eigene Linie."],
   lag: ["Versatz", "Restversatz zwischen GemX und Xsens in Frames, der nach der Synchronisation über die Klatscher bleibt."],
   angles: ["Winkel", "Mittlere Abweichung (RMSE) der Gelenkwinkel zwischen GemX und Xsens, rechts und links gemittelt. Antippen zeigt die schlechtere Seite unten im Gelenkverlauf."],
@@ -1499,20 +1516,54 @@ function setHelp(on) {
   if (on) showHelp($("#helpBtn")); else reveal($("#qh"), false);
 }
 let helpAt = null;
-function showHelp(el) {
-  const [t, p] = HELP[el.dataset.help] || [], q = $("#qh"); if (!t || el === helpAt && q._on) return;
-  helpAt = el;
+// key: HELP entry (default the element's data-help); r: where to point (default the element), e.g.
+// the spot under the mouse for a part of a chart
+function showHelp(el, key = el.dataset.help, r = el.getBoundingClientRect()) {
+  const [t, p] = HELP[key] || [], q = $("#qh"); if (!t || el === helpAt && key === helpAt.key && q._on) return;
+  helpAt = el; el.key = key;
   const first = !q._on;  // first time: grow out of the element; afterwards glide to the next one
   if (first) { q.getAnimations().forEach(a => a.cancel()); q.style.transition = "none"; }
   $("#qhT").textContent = t; $("#qhP").textContent = p; q.hidden = false;
-  const r = el.getBoundingClientRect(), W = q.offsetWidth, H = q.offsetHeight;
+  const W = q.offsetWidth, H = q.offsetHeight;
   const left = r.left - W - 14 > 8 ? r.left - W - 14 : Math.min(innerWidth - W - 8, r.right + 14);
   q.style.left = left + "px"; q.style.top = clamp(r.top + r.height / 2 - H / 2, 8, innerHeight - H - 8) + "px";
   if (first) { q.offsetWidth; q.style.transition = ""; q.hidden = true; q._on = false; reveal(q, true, el.offsetWidth < 80 ? el : null); }
   else if (!calm()) $("#qhT").animate([{ opacity: 0.3 }, { opacity: 1 }], 220);
 }
 $("#helpBtn").onclick = () => setHelp(!helpOn);
-document.addEventListener("pointerover", e => { if (helpOn) { const el = e.target.closest("[data-help]"); if (el) showHelp(el); } });
+document.addEventListener("pointerover", e => { if (helpOn) { const el = e.target.closest("[data-help]"); if (el && el.id !== "dcv") showHelp(el); } });
+// The Gelenkverlauf explains the part of the chart under the mouse (line, dot, area, axis).
+function graphHelpKey(x, y) {
+  const near = (pts, d) => pts && pts.length ? pts.reduce((b, p) => Math.abs(p[0] - x) < Math.abs(b[0] - x) ? p : b) : null;
+  if (ev.baPts && ev.baGeo) {
+    const G = ev.baGeo;
+    if (x > G.w - G.R) {  // right margin: the label nearest in height
+      const [ly, key] = G.labels.reduce((b, l) => Math.abs(l[0] - y) < Math.abs(b[0] - y) ? l : b, G.labels[0]);
+      return Math.abs(ly - y) < 10 ? key : "baPlot";
+    }
+    if (y > G.h - 13) return "baX";
+    const dot = ev.baPts.reduce((b, p) => (p[0] - x) ** 2 + (p[1] - y) ** 2 < (b[0] - x) ** 2 + (b[1] - y) ** 2 ? p : b, ev.baPts[0]);
+    if ((dot[0] - x) ** 2 + (dot[1] - y) ** 2 < 25) return dot[3] ? "baPtFlip" : "baPt";
+    const line = G.lines.reduce((b, l) => Math.abs(l[0] - y) < Math.abs(b[0] - y) ? l : b, G.lines[0]);
+    if (Math.abs(line[0] - y) < 5) return line[1];
+    if (G.trend) {
+      const [x1, y1, x2, y2] = G.trend, ty = y1 + (y2 - y1) * (x - x1) / ((x2 - x1) || 1);
+      if (x >= x1 && x <= x2 && Math.abs(ty - y) < 5) return "baTrend";
+    }
+    return "baPlot";
+  }
+  const G = ev.grGeo; if (!G) return "graph";
+  if (G.split && y < G.split) return "graphAngle";
+  const d = near(G.dep), a = near(G.err);
+  if (d && Math.abs(d[1] - y) < 6) return "graphDepth";
+  if (a && y > a[1]) return "graphDist";
+  return "graph";
+}
+$("#dcv").addEventListener("pointermove", e => {
+  if (!helpOn) return;
+  const el = $("#dcv"), r = el.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+  showHelp(el, graphHelpKey(x, y), { left: e.clientX - 6, right: e.clientX + 6, top: e.clientY - 6, bottom: e.clientY + 6, width: 12, height: 12 });
+});
 
 // ---- Zeit: Video führt, ohne Video ein eigener Takt ----
 let rate = 1, lastT = 0;
