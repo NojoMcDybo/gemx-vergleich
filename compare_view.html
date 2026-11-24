@@ -114,6 +114,74 @@ img, video, svg, canvas { -webkit-user-drag: none; }
 .lbar b { display: block; height: 100%; border-radius: 2px; }
 .pills { grid-column: 1 / -1; display: flex; gap: 6px; flex-wrap: wrap; }
 .cmp { margin-top: 12px; }
+/* Gruppen: Karte neben der Ablage, Punkte auf den Karten, Stapel, Gruppenseite */
+.toprow { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; margin: 22px 0 28px; }
+.toprow > .hero { margin: 0; }
+.groups { position: relative; border-radius: 28px; padding: 18px 16px; background: var(--n-surface); box-shadow: inset 0 0 0 1.5px rgba(var(--fx),.07); min-height: 160px; }
+.groups .gh { display: flex; align-items: center; gap: 8px; padding: 0 2px 0 4px; }
+.groups .gh .count { flex: 1; }
+.glist { position: absolute; inset: 52px 10px 12px; overflow: auto; scrollbar-width: thin; display: grid; align-content: start; gap: 2px; }
+#gList { display: grid; gap: 2px; }
+.gi { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 6px 0 10px; border-radius: 10px; font-size: 13px; }
+.gi:hover { background: rgba(var(--fx),.06); }
+.gi .gname { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: text; }
+.gi .count { font-variant-numeric: tabular-nums; }
+.gi .gmore { opacity: 0; }
+.gi:hover .gmore, .gi .gmore:focus-visible, .gi .gmore[aria-expanded="true"] { opacity: 1; }
+#gMenu .gdanger { color: var(--n-low); }
+.gi input { flex: 1; min-width: 0; font: inherit; color: var(--n-ink); background: var(--n-bg-deep); border: 0; border-radius: 7px; padding: 5px 8px; outline: 1.5px solid rgba(117,184,255,.5); }
+.gi.gnew input, #gMenu .gnew input { background: none; outline: 0; padding: 5px 0; }
+.gi.gnew input::placeholder, #gMenu .gnew input::placeholder { color: var(--n-faint); }
+.gi.gnew:focus-within { background: rgba(var(--fx),.06); }
+.gnew .gdot { background: none; box-shadow: inset 0 0 0 1.5px var(--c); }
+.gempty { color: var(--n-faint); font-size: 12.5px; line-height: 1.5; padding: 6px 10px; }
+.gdot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+button.gdot { border: 0; padding: 0; cursor: pointer; transition: transform .3s var(--n-spring); }
+button.gdot:hover { transform: scale(1.35); }
+#gMenu.colors { min-width: 0; grid-template-columns: repeat(6, 26px); gap: 4px; padding: 10px; }
+#gMenu.colors button { width: 26px; height: 26px; padding: 0; justify-content: center; border-radius: 50%; }
+#gMenu.colors button i { width: 16px; height: 16px; border-radius: 50%; background: var(--c); }
+#gMenu.colors button.on { box-shadow: inset 0 0 0 2px var(--n-ink); }
+.gsel { display: inline-flex; align-items: center; gap: 0; height: 24px; padding: 0 6px; border: 0; border-radius: 999px; background: none; cursor: pointer; color: var(--n-faint); }
+.gsel:hover { background: rgba(var(--fx),.08); }
+.gsel .gdot { width: 9px; height: 9px; margin-left: -3px; outline: 2px solid var(--n-surface); }
+.gsel .gdot:first-child { margin-left: 0; }
+.gsel .gnone { width: 11px; height: 11px; border-radius: 50%; border: 1.5px dashed rgba(var(--fx),.4); }
+#gMenu { position: fixed; z-index: 40; min-width: 210px; max-width: 280px; max-height: 50vh; overflow: auto; padding: 6px; border-radius: 16px; display: grid; gap: 1px; background: rgba(30,30,33,.9); -webkit-backdrop-filter: blur(28px) saturate(1.6); backdrop-filter: blur(28px) saturate(1.6); }
+:root[data-theme="light"] #gMenu { background: rgba(248,248,250,.93); }
+#gMenu button { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border: 0; border-radius: 10px; background: none; color: var(--n-ink); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+#gMenu button:hover { background: rgba(var(--fx),.08); }
+#gMenu button span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#gMenu .chk { flex: none; display: inline-flex; font-size: 15px; color: var(--gx); }
+#gMenu [data-g] .chk { opacity: 0; }
+#gMenu [data-g].on .chk { opacity: 1; }
+#gMenu .gnew { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; margin-top: 3px; border-top: 1px solid rgba(var(--fx),.08); font-size: 13px; }
+#gMenu .gnew input { flex: 1; min-width: 0; font: inherit; color: var(--n-ink); border: 0; }
+.lib:has(> .stack) { gap: 36px 34px; padding: 0 12px; }
+.stack { cursor: pointer; display: grid; gap: 30px; padding-top: 16px; border-radius: 22px; outline: none; }
+.pile { display: grid; margin: 0 10px; transition: transform .45s var(--n-spring); }
+.pile > .lcard { grid-area: 1 / 1; pointer-events: none; box-shadow: 0 1px 0 rgba(var(--fx),.06), 0 10px 26px rgba(0,0,0,.28); }
+.stack:hover .pile, .stack:focus-visible .pile { transform: translateY(-4px) scale(1.02); }
+.slabel { display: flex; align-items: center; gap: 9px; padding: 0 6px; font: 600 14px var(--n-font-display); }
+.slabel span:not(.count) { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gpage .ebar { padding: 0 0 22px; }
+.gtiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 26px; }
+.gtile { padding: 16px 18px; }
+.gtile .big { font: 600 28px/1.1 var(--n-font-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin-top: 6px; }
+.gtile .unit { font-size: 12px; color: var(--n-faint); margin-left: 3px; letter-spacing: 0; }
+.gtile small { display: block; color: var(--n-faint); font-size: 12px; margin-top: 4px; }
+.gtable { overflow: auto; padding: 8px 10px 12px; scrollbar-width: thin; }
+.gtable table { border-collapse: collapse; width: 100%; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.gtable th, .gtable td { padding: 8px 10px; text-align: right; white-space: nowrap; }
+.gtable th { font-weight: 600; color: var(--n-dim); font-size: 11.5px; }
+.gtable th:first-child, .gtable td:first-child { text-align: left; }
+.gtable td:first-child { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
+.gtable tbody tr + tr td { border-top: 1px solid rgba(var(--fx),.06); }
+.gtable tfoot td { border-top: 1px solid rgba(var(--fx),.16); font-weight: 600; }
+.gtable tfoot tr.rest td { font-weight: 400; color: var(--n-dim); border-top: 0; }
+.gtable .open td:not(:first-child) { color: var(--n-faint); }
+.gnote { color: var(--n-faint); font-size: 12px; margin: 10px 4px 0; }
+@media (max-width: 640px) { .toprow { grid-template-columns: 1fr; } .glist { position: static; max-height: 220px; margin-top: 8px; } .groups { min-height: 0; } }
 .spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(var(--fx),.25); border-top-color: var(--n-ink); animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 /* Vergleich läuft: Karte bekommt umlaufenden Rand, Zeichen zeichnet sich, Zeit läuft */
@@ -406,7 +474,8 @@ html.swapping .lcard { view-transition-name: none !important; }
       <button class="n-btn" id="shSave"><span data-i="download"></span><span>Speichern …</span></button>
       <button class="n-btn primary" id="shGo"><span data-i="share"></span><span>Teilen …</span></button></div>
   </div>
-  <div class="hero" id="hero" hidden>
+  <div class="toprow" id="toprow" hidden>
+  <div class="hero" id="hero">
     <div class="lead" id="pickAny">
       <button class="bigplus n-glass n-liquid" data-i="plus" aria-label="Dateien wählen"></button>
       <div class="t">Dateien oder ganzen Ordner ablegen</div>
@@ -419,14 +488,28 @@ html.swapping .lcard { view-transition-name: none !important; }
     </div>
     <div class="go"><span class="count" id="goStatus" role="status"></span><button class="n-btn primary" id="go" disabled>Vergleichen</button></div>
   </div>
+  <div class="groups" id="groups">
+    <div class="gh"><span class="n-eyebrow">Gruppen</span><span class="count" id="gCount"></span></div>
+    <div class="glist"><div id="gList"></div>
+      <div class="gi gnew"><i class="gdot" id="gNewDot"></i><input id="gNew" maxlength="60" placeholder="Neue Gruppe …" aria-label="Neue Gruppe: Name eintippen, Enter legt sie an"></div></div>
+  </div>
+  </div>
   <input type="file" id="fAny" multiple accept=".mvnx,.pt,video/*" hidden>
   <input type="file" id="fmvnx" accept=".mvnx" hidden>
   <input type="file" id="fgemx" accept=".pt" hidden>
   <input type="file" id="fvideo" accept="video/*" hidden>
   <div class="row"><span class="n-eyebrow">Aufnahmen</span><span class="count" id="count"></span>
     <button class="sharebtn n-glass n-liquid" id="shareBtn" title="Auswertungen und Daten weitergeben" hidden style="margin-left:auto"><span data-i="share"></span><span>Teilen</span></button>
-    <div class="n-seg" id="filter"><button class="active" data-f="all">Alle</button><button data-f="done">Verglichen</button><button data-f="todo">Offen</button></div></div>
+    <div class="n-seg" id="filter"><button data-f="grp" id="fGrp" hidden>Cluster</button><button class="active" data-f="all">Alle</button><button data-f="done">Verglichen</button><button data-f="todo">Offen</button></div></div>
   <div class="lib" id="lib"></div>
+  <div id="gMenu" class="panel" role="menu" aria-label="Gruppen zuordnen" hidden></div>
+</section>
+
+<!-- ===== Gruppe ===== -->
+<section class="page gpage" id="gp" hidden>
+  <div class="ebar"><button class="round n-glass n-liquid" data-i="back" id="gpBack" title="Zurück zur Übersicht (Esc)"></button>
+    <div class="t"><h1 id="gpTitle"></h1><small id="gpSub"></small></div></div>
+  <div id="gpBody"></div>
 </section>
 
 <!-- ===== Auswertung ===== -->
@@ -508,6 +591,7 @@ const ICONS = {
   pause: ["glyph", '<rect x="6.5" y="5" width="4" height="14" rx="1.2"/><rect x="13.5" y="5" width="4" height="14" rx="1.2"/>'],
   video: ["line", '<rect x="3.5" y="6" width="17" height="12" rx="3"/><path d="m10.5 9.7 4 2.3-4 2.3z"/>'],
   down: ["line", '<path d="m7 10 5 5 5-5"/>'], up: ["line", '<path d="m7 14 5-5 5 5"/>'],
+  more: ["glyph", '<circle cx="5.5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18.5" cy="12" r="1.7"/>'],
   document: ["glyph", '<path d="M6 2h8.6L20 7.4V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.8V8h4.2zM8 12v1.6h8V12zm0 3.4V17h6v-1.6z"/>'],
   spark: ["line", '<path d="M12 3.5c.5 4.3 2.2 6 6.5 6.5-4.3.5-6 2.2-6.5 6.5-.5-4.3-2.2-6-6.5-6.5 4.3-.5 6-2.2 6.5-6.5z"/><path d="M18.5 15.5c.2 1.6.8 2.2 2.4 2.4-1.6.2-2.2.8-2.4 2.4-.2-1.6-.8-2.2-2.4-2.4 1.6-.2 2.2-.8 2.4-2.4z"/>'],
   folder: ["line", '<path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2h7a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/>'],
@@ -601,7 +685,7 @@ function itemState(it) {
   if (it.src === "static") return "xs";  // Vergleich.html: Xsens without GemX joints
   return it.has.mvnx && it.has.gemx ? "todo" : "miss";
 }
-function cardHtml(it) {
+function cardHtml(it, pose) {  // pose: place on a cluster pile (no own view transition there, copies may repeat)
   const st = itemState(it), c = it.card, s = c?.summary;
   const status = { busy: '<span class="spin"></span>rechnet', todo: "bereit", xs: "nur Xsens", miss: it.has.mvnx ? "GemX fehlt" : "Xsens fehlt" }[st];
   const pic = poster(it), loading = it.video && !pic;
@@ -619,16 +703,16 @@ function cardHtml(it) {
   } else if (st === "todo") body = `<button class="cmp n-btn primary" data-cmp>Vergleichen</button>`;
   else if (st === "busy") body = `<div class="prog"><i></i></div>`;
   const sub = [it.view, it.date, s ? num(s.frames / FPS, 1) + " s" : "", it.src === "local" ? "abgelegt" : ""].filter(Boolean).join(" · ");
-  return `<div class="lcard n-card lift ${st}${it.open && s ? " open" : ""}${libPending ? " pending" : ""}" data-id="${esc(it.id)}" style="view-transition-name:${vtName(it)}">
+  return `<div class="lcard n-card lift ${st}${it.open && s && !pose ? " open" : ""}${libPending ? " pending" : ""}" data-id="${esc(it.id)}" style="${pose ? pose + ";view-transition-name:none" : "view-transition-name:" + vtName(it)}">
     <div class="thumb${loading ? " loading" : ""}">${thumb}${st === "busy" ? `<div class="calc">${markSvg(true)}<b>Vergleiche …</b><small class="el">${elapsed(it)}</small></div>` : ""}<span class="nr">${esc(it.nr || "–")}</span>${status && st !== "busy" ? `<span class="status n-glass">${status}</span>` : ""}<span class="dots">${dots}</span></div>
-    <div class="body"><div class="tt"><span class="nm" title="${esc(it.name)}">${esc(it.name)}</span>${s ? `<button class="tog n-ico sm" data-i="down" data-tog title="Mehr"></button>` : ""}</div>
+    <div class="body"><div class="tt"><span class="nm" title="${esc(it.name)}">${esc(it.name)}</span>${gselHtml(it)}${s ? `<button class="tog n-ico sm" data-i="down" data-tog title="Mehr"></button>` : ""}</div>
     <div class="sub">${esc(sub)}</div>${body}</div>${libPending ? SKL : ""}</div>`;
 }
 function renderLib() {
   const show = items.filter(it => filter === "all" || (filter === "done") === !!it.card);
   const done = items.filter(it => it.card).length;
   $("#count").textContent = items.length ? `${done} von ${items.length} verglichen` : "";
-  let html = show.map(cardHtml).join("");
+  let html = filter === "grp" ? pilesHtml() : show.map(it => cardHtml(it)).join("");
   if (!items.length) html = APP ? `<div class="empty"><div class="ring" data-i="folder"></div><div>${root ? "Keine Aufnahmen in diesem Ordner." : "Ordner mit den Aufnahmen wählen."}</div><button class="n-btn" data-pickroot>Ordner wählen</button></div>`
     : `<div class="empty">Keine Aufnahmen.</div>`;
   // keep already loaded thumbnails: no reload, no black flash while the cards move
@@ -642,9 +726,14 @@ function renderLib() {
     if (v.readyState >= 2 && !v.seeking) grab();
     v.addEventListener("loadeddata", grab, { once: true }); v.addEventListener("seeked", grab, { once: true }); v.addEventListener("error", done, { once: true });
   });
-  $$(".lcard", $("#lib")).forEach(el => {
+  $$(".stack", $("#lib")).forEach(el => {
+    el.onclick = () => openGroup(el.dataset.g, el);
+    el.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openGroup(el.dataset.g, el); } };
+  });
+  $$("#lib > .lcard").forEach(el => {
     const it = items.find(x => x.id === el.dataset.id);
     el.onclick = e => {
+      if (e.target.closest("[data-gsel]")) return openGMenu(it, e.target.closest("[data-gsel]"));
       if (e.target.closest("[data-tog]")) { it.open = !it.open; el.classList.toggle("open", it.open); return; }
       const st = itemState(it);
       if (st === "miss") return toast(it.has.mvnx ? "Zu dieser Aufnahme fehlt das GemX-Ergebnis (hpe_results.pt)." : "Zu dieser Aufnahme fehlt die Xsens-Datei (.mvnx).");
@@ -655,10 +744,227 @@ function renderLib() {
   $("[data-pickroot]")?.addEventListener("click", pickRoot);
   const ref = $(".lcard.done:not(.open) .body", $("#lib"));
   if (ref) $("#lib").style.setProperty("--body-h", ref.offsetHeight + "px");
+  if (APP) renderGroups();  // member counts follow the library
 }
 const vtName = it => "c-" + String(it.id).replace(/[^\w-]/g, "_");
 // filtering: cards that stay slide to their new place, the others fade out or in
-$$("#filter button").forEach(b => b.onclick = () => { if (b.dataset.f === filter) return; $$("#filter button").forEach(x => x.classList.toggle("active", x === b)); filter = b.dataset.f; vt(renderLib); });
+$$("#filter button").forEach(b => b.onclick = () => { if (b.dataset.f === filter) return; $$("#filter button").forEach(x => x.classList.toggle("active", x === b)); const piles = filter === "grp" || b.dataset.f === "grp"; filter = b.dataset.f; piles ? flipLib(renderLib) : vt(renderLib); });
+
+// ---- Gruppen: selbst beschriftete Cluster, gespeichert im Programm (groups.json) ----
+// shortcut: 12 colors, a 13th group repeats the first one; add colors if people need more groups
+const GCOL = ["#ff6b6b", "#4dabf7", "#69db7c", "#ffd43b", "#da77f2", "#ff922b", "#3bc9db", "#f783ac", "#a9e34b", "#748ffc", "#e8a87c", "#20c997"];
+const PILE = 8;  // cards drawn per pile; the label counts all
+let groups = { groups: [], members: {} }, gSave = Promise.resolve();
+const gcolor = g => g.color < 0 ? "rgba(var(--fx),.35)" : GCOL[g.color % GCOL.length];
+const memberOf = it => it?.src === "lib" ? groups.members[it.key] || [] : [];
+const freeColor = () => { const used = new Set(groups.groups.map(g => g.color)); let i = 0; while (used.has(i)) i++; return i; };
+async function loadGroups() {
+  try { groups = await api("api/groups"); } catch (e) { toast(e.message, true); }
+  renderGroups(); if (items.length) renderLib();
+}
+function saveGroups() {  // writes queue up, so an older state never lands after a newer one
+  const body = JSON.stringify(groups);
+  gSave = gSave.then(() => api("api/groups", { method: "POST", body })).catch(e => toast("Gruppen nicht gespeichert: " + e.message, true));
+}
+function groupsChanged() { saveGroups(); renderGroups(); if (filter === "grp") renderLib(); else refreshDots(); }
+function renderGroups() {
+  if ($("#gList input")) return;  // a name is being changed
+  const n = id => items.filter(it => memberOf(it).includes(id)).length;
+  $("#gCount").textContent = groups.groups.length || "";
+  $("#gList").innerHTML = groups.groups.map(g => `<div class="gi" data-g="${esc(g.id)}"><button class="gdot" style="--c:${gcolor(g)}" title="Farbe wählen" aria-label="Farbe von ${esc(g.name)} wählen" aria-haspopup="menu"></button>
+    <span class="gname">${esc(g.name)}</span><span class="count">${n(g.id)}</span>
+    <button class="n-ico sm gmore" data-i="more" title="Mehr" aria-label="Gruppe ${esc(g.name)}: umbenennen oder löschen" aria-haspopup="menu" aria-expanded="false"></button></div>`).join("")
+    || `<div class="gempty">Noch keine Gruppen. Unten einen Namen eintippen und Enter drücken, dann Aufnahmen über den Kreis neben ihrem Namen zuordnen.</div>`;
+  $("#gNewDot").style.setProperty("--c", GCOL[freeColor() % GCOL.length]);
+  paint($("#gList"));
+  $$("#gList .gi").forEach(el => {
+    const g = groups.groups.find(x => x.id === el.dataset.g);
+    $(".gmore", el).onclick = e => openGroupMenu(el, g, e.currentTarget);
+    $("button.gdot", el).onclick = e => openColors(g, e.currentTarget);
+  });
+}
+function openGroupMenu(el, g, btn) {  // drei Punkte: umbenennen oder löschen
+  const m = $("#gMenu");
+  m.classList.remove("colors");
+  m.innerHTML = `<button data-act="name"><span>Umbenennen</span></button><button data-act="del" class="gdanger"><span>Löschen</span></button>`;
+  $("[data-act=name]", m).onclick = () => { closeGMenu(); nameEdit(el, g); };
+  $("[data-act=del]", m).onclick = () => { closeGMenu(); delGroup(g); };
+  popAt(m, btn); btn.setAttribute("aria-expanded", "true");
+  $("button", m).focus({ preventScroll: true });
+}
+function nameEdit(el, g) {
+  const inp = document.createElement("input");
+  Object.assign(inp, { value: g.name, maxLength: 60 }); inp.setAttribute("aria-label", "Name der Gruppe");
+  $(".gname", el).replaceWith(inp); inp.focus(); inp.select();
+  let done = false;
+  const finish = ok => {
+    if (done) return; done = true;
+    const name = inp.value.trim(); inp.remove();
+    if (ok && name) { g.name = name; groupsChanged(); } else renderGroups();
+  };
+  inp.onkeydown = e => { if (e.key === "Enter") finish(true); if (e.key === "Escape") { e.stopPropagation(); finish(false); } };
+  inp.onblur = () => finish(true);
+}
+function createGroup(name) {
+  const g = { id: "g" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: name.trim().slice(0, 60), color: freeColor() };
+  groups.groups.push(g);
+  return g;
+}
+// Zeile „Neue Gruppe …“: Name tippen, Enter legt an, die Zeile bleibt für die nächste bereit
+function newRow(inp, then) {
+  inp.onkeydown = e => {
+    if (e.key === "Escape") { e.stopPropagation(); inp.value = ""; inp.blur(); }
+    if (e.key !== "Enter" || !inp.value.trim()) return;
+    const g = createGroup(inp.value); inp.value = ""; then?.(g); groupsChanged();
+  };
+}
+newRow($("#gNew"), () => $("#gList").lastElementChild?.scrollIntoView({ block: "nearest" }));
+function delGroup(g) {
+  const n = Object.values(groups.members).filter(v => v.includes(g.id)).length;
+  if (n && !confirm(`Gruppe „${g.name}“ löschen? ${n} Aufnahme${n === 1 ? "" : "n"} verlieren diese Zuordnung, die Aufnahmen selbst bleiben.`)) return;
+  groups.groups = groups.groups.filter(x => x !== g);
+  for (const k in groups.members) groups.members[k] = groups.members[k].filter(id => id !== g.id);
+  groupsChanged();
+}
+function gselHtml(it) {
+  if (!APP || it.src !== "lib") return "";
+  const mine = memberOf(it), gs = groups.groups.filter(g => mine.includes(g.id));
+  return `<button class="gsel" data-gsel title="${gs.length ? esc(gs.map(g => g.name).join(", ")) : "Gruppe zuordnen"}" aria-label="Gruppen zuordnen" aria-haspopup="menu">${gs.length ? gs.map(g => `<i class="gdot" style="--c:${gcolor(g)}"></i>`).join("") : '<i class="gnone"></i>'}</button>`;
+}
+function refreshDots() {
+  $$("#lib .lcard").forEach(el => { const b = $("[data-gsel]", el), it = items.find(x => x.id === el.dataset.id); if (b && it) b.outerHTML = gselHtml(it); });
+}
+// Menü an der Karte: Punktfarbe und Name je Gruppe, Klick ordnet zu oder löst
+function popAt(m, btn) {  // measure, then grow out of the button that opened it
+  m.getAnimations().forEach(a => a.cancel()); m.hidden = false;
+  const r = btn.getBoundingClientRect(), h = m.offsetHeight;
+  m.style.left = clamp(r.left + r.width / 2 - m.offsetWidth / 2, 8, innerWidth - m.offsetWidth - 8) + "px";
+  m.style.top = (r.bottom + 6 + h > innerHeight - 8 ? Math.max(8, r.top - 6 - h) : r.bottom + 6) + "px";
+  m.hidden = true; m._on = false; reveal(m, true, btn); gmY = scrollY;
+}
+function openGMenu(it, btn) {
+  const m = $("#gMenu");
+  const fill = () => {
+    const mine = memberOf(it);
+    m.innerHTML = groups.groups.map(g => `<button role="menuitemcheckbox" aria-checked="${mine.includes(g.id)}" class="${mine.includes(g.id) ? "on" : ""}" data-g="${esc(g.id)}"><i class="gdot" style="--c:${gcolor(g)}"></i><span>${esc(g.name)}</span><i class="chk" data-i="check"></i></button>`).join("")
+      + `<div class="gnew"><i class="gdot" style="--c:${GCOL[freeColor() % GCOL.length]}"></i><input maxlength="60" placeholder="Neue Gruppe …" aria-label="Neue Gruppe für diese Aufnahme"></div>`;
+    paint(m);
+    $$("[data-g]", m).forEach(b => b.onclick = () => {
+      const id = b.dataset.g, cur = memberOf(it), on = !cur.includes(id);
+      groups.members[it.key] = on ? [...cur, id] : cur.filter(x => x !== id);
+      b.classList.toggle("on", on); b.setAttribute("aria-checked", on);
+      groupsChanged();
+    });
+    newRow($("input", m), g => { groups.members[it.key] = [...memberOf(it), g.id]; setTimeout(() => { fill(); $("input", m).focus(); }); });  // the new group appears ticked
+  };
+  m.classList.remove("colors"); fill(); popAt(m, btn);
+  (groups.groups.length ? $("button", m) : $("input", m)).focus({ preventScroll: true });
+}
+// Farbauswahl am Punkt einer Gruppe
+function openColors(g, btn) {
+  const m = $("#gMenu"), used = new Set(groups.groups.filter(x => x !== g).map(x => x.color));
+  m.classList.add("colors");
+  m.innerHTML = GCOL.map((c, i) => `<button class="${i === g.color % GCOL.length ? "on" : ""}" data-c="${i}" title="${used.has(i) ? "schon vergeben" : "frei"}" aria-label="Farbe ${i + 1}${used.has(i) ? ", schon vergeben" : ""}"><i style="--c:${c}"></i></button>`).join("");
+  $$("[data-c]", m).forEach(b => b.onclick = () => { g.color = +b.dataset.c; closeGMenu(); groupsChanged(); });
+  popAt(m, btn);
+  $(".on", m)?.focus({ preventScroll: true });
+}
+function closeGMenu() { $$("#gList .gmore").forEach(b => b.setAttribute("aria-expanded", "false")); if (isOpen($("#gMenu"))) reveal($("#gMenu"), false); }
+document.addEventListener("pointerdown", e => { if (isOpen($("#gMenu")) && !e.target.closest("#gMenu, [data-gsel], #gList button.gdot, #gList .gmore")) closeGMenu(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && isOpen($("#gMenu"))) closeGMenu(); });
+let gmY = 0;  // tiny scroll shifts while the dots redraw must not close the menu
+addEventListener("scroll", () => { if (Math.abs(scrollY - gmY) > 40) closeGMenu(); }, { passive: true });
+
+// Cluster-Ansicht: je Gruppe ein unordentlicher Stapel; Aufnahmen in mehreren Gruppen liegen auf mehreren Stapeln
+function stacks() {
+  const out = groups.groups.map(g => ({ g, list: items.filter(it => memberOf(it).includes(g.id)) })).filter(s => s.list.length);
+  const none = items.filter(it => !memberOf(it).length);
+  if (none.length) out.push({ g: { id: "", name: "Ohne Gruppe", color: -1 }, list: none });
+  return out;
+}
+function jitter(s) {  // stable per pile and card, so a pile looks the same every time
+  let h = 2166136261;
+  for (const ch of s) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+  const r = k => ((h >>> k) & 255) / 255 - 0.5;
+  return [r(0) * 20, r(8) * 46, r(16) * 30];  // rotation ±10°, shift ±23 / ±15 px
+}
+function pilesHtml() {
+  return stacks().map(({ g, list }) => {
+    const top = list.slice(-PILE);
+    const cards = top.map((it, i) => {
+      const [r, x, y] = jitter(g.id + "|" + it.id).map(v => i === top.length - 1 ? v * 0.3 : v);  // the top card lies almost straight
+      return cardHtml(it, `rotate:${r.toFixed(1)}deg;translate:${x.toFixed(0)}px ${y.toFixed(0)}px`);
+    }).join("");
+    return `<div class="stack" data-g="${esc(g.id)}" tabindex="0" role="button" aria-label="${esc(g.name)}: ${list.length} Aufnahme${list.length === 1 ? "" : "n"} vergleichen">
+      <div class="pile">${cards}</div>
+      <div class="slabel"><i class="gdot" style="--c:${gcolor(g)}"></i><span>${esc(g.name)}</span><span class="count">${list.length}</span></div></div>`;
+  }).join("");
+}
+// Karten fliegen von ihrem Platz auf ihre Stapel (und zurück); eine Karte in zwei Gruppen fliegt auf beide
+function flipLib(update) {
+  if (calm()) return update();
+  const at = el => {
+    const b = el.getBoundingClientRect(), t = (el.style.translate || "0px 0px").split(" ").map(parseFloat);
+    return { x: b.left + b.width / 2, y: b.top + b.height / 2, r: parseFloat(el.style.rotate) || 0, tx: t[0] || 0, ty: t[1] || 0 };
+  };
+  const before = new Map();
+  $$("#lib .lcard[data-id]").forEach(el => before.set(el.dataset.id, at(el)));  // the last copy is the top one of its pile
+  update();
+  $$("#lib .lcard[data-id]").forEach((el, i) => {
+    const b = before.get(el.dataset.id), a = at(el), delay = Math.min(i * 22, 400);
+    if (!b) return el.animate([{ opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1 }], { duration: 420, delay, easing: "ease-out", fill: "backwards" });
+    el.animate([{ translate: `${a.tx + b.x - a.x}px ${a.ty + b.y - a.y}px`, rotate: b.r + "deg" }, { translate: `${a.tx}px ${a.ty}px`, rotate: a.r + "deg" }],
+      { duration: 720, delay, easing: "cubic-bezier(.2, .9, .25, 1.04)", fill: "backwards" });
+  });
+  $$("#lib .slabel").forEach(l => l.animate([{ opacity: 0, translate: "0 6px" }, { opacity: 1, translate: "0 0" }], { duration: 420, delay: 380, easing: "ease-out", fill: "backwards" }));
+}
+
+// ---- Gruppenseite: Werte der Gruppe nebeneinander und gegen alle übrigen ----
+const GM = [  // name, unit, value from a summary, thresholds, decimals; lower is better everywhere
+  ["Haltung", "mm", s => s.pa_mpjpe_mm, TH.pa, 0],
+  ["Raum", "mm", s => s.mpjpe_mm, TH.mpjpe, 0],
+  ...PAIRS.map(b => [b, "°", s => pair(s.angle_rmse_deg, b), TH.angle, 1]),
+  ["Tiefe", "×", s => s.path_depth_mm ? s.path_depth_mm / s.path_plane_mm : null, TH.depth, 1],
+  ["Drift", "mm/s", s => s.drift_mm_s, [10, 20], 0],
+  ["Vertauscht", "%", s => Math.max(...Object.values(s.flip_pct)), TH.flip, 1],
+  ["Zittern", "×", s => s.acc_gemx / s.acc_xs, TH.jitter, 1],
+];
+const sdev = a => a.length > 1 ? Math.sqrt(a.reduce((x, v) => x + (v - mean(a)) ** 2, 0) / (a.length - 1)) : NaN;
+const gvals = (list, f) => list.map(it => f(it.card.summary)).filter(v => v != null && Number.isFinite(v));
+const gp = {};
+function renderGroup({ g, list }) {
+  const done = list.filter(it => it.card), rest = items.filter(it => it.card && !list.includes(it));
+  $("#gpTitle").innerHTML = `<i class="gdot" style="--c:${gcolor(g)};display:inline-block;margin:0 12px 3px 0"></i>${esc(g.name)}`;
+  $("#gpSub").textContent = [`${list.length} Aufnahme${list.length === 1 ? "" : "n"}`, `${done.length} verglichen`, list.length > done.length ? `${list.length - done.length} offen` : ""].filter(Boolean).join(" · ");
+  const angle = s => mean(PAIRS.map(b => pair(s.angle_rmse_deg, b)));
+  const tile = (k, u, f, th, d) => {
+    const v = gvals(done, f), o = gvals(rest, f), m = mean(v);
+    return `<div class="gtile n-card"><div class="n-eyebrow">${k}</div><div class="big" style="color:${heat(m, th)}">${num(m, d)}<span class="unit">${u}</span></div>
+      <small>${v.length > 1 ? `± ${num(sdev(v), d)} ${u} · ` : ""}${o.length ? `übrige ${num(mean(o), d)} ${u}` : "keine übrigen zum Vergleich"}</small></div>`;
+  };
+  const cell = (s, [, , f, th, d]) => { const v = f(s); return `<td style="color:${heat(v, th)}">${num(v, d)}</td>`; };
+  const avg = (list, cls, label) => `<tr class="${cls}"><td>${label}</td>${GM.map(([, , f, th, d]) => { const v = gvals(list, f); return `<td title="${v.length > 1 ? "± " + num(sdev(v), d) : ""}" style="color:${cls === "rest" ? "" : heat(mean(v), th)}">${num(mean(v), d)}</td>`; }).join("")}</tr>`;
+  $("#gpBody").innerHTML = `<div class="gtiles">${tile("Haltung", "mm", s => s.pa_mpjpe_mm, TH.pa, 0)}${tile("Gelenkwinkel", "°", angle, TH.angle, 1)}
+      ${tile("Tiefe", "×", GM[6][2], TH.depth, 1)}${tile("Vertauscht", "%", GM[8][2], TH.flip, 1)}</div>
+    <div class="gtable n-card"><table><thead><tr><th>Aufnahme</th>${GM.map(([k, u]) => `<th>${k} <small>${u}</small></th>`).join("")}</tr></thead>
+      <tbody>${list.map(it => it.card ? `<tr><td title="${esc(it.name)}">${esc(it.nr || "")} ${esc(it.name)}</td>${GM.map(m => cell(it.card.summary, m)).join("")}</tr>`
+        : `<tr class="open"><td>${esc(it.nr || "")} ${esc(it.name)}</td>${GM.map(() => "<td>offen</td>").join("")}</tr>`).join("")}</tbody>
+      <tfoot>${avg(done, "mean", "Mittel der Gruppe")}${rest.length ? avg(rest, "rest", `Übrige (${rest.length})`) : ""}</tfoot></table></div>
+    <p class="gnote">Mittelwerte über die verglichenen Aufnahmen; „Übrige“ sind alle anderen verglichenen Aufnahmen. Niedriger ist überall besser.</p>`;
+}
+function openGroup(id, from) {
+  const S = stacks().find(s => s.g.id === id);
+  if (!S?.list.length) return;
+  gp.id = id; gp.scrollY = scrollY; closeGMenu();
+  pageSwap([$(".pile", from), $(".slabel span", from)], () => { renderGroup(S); $("#ov").hidden = true; $("#gp").hidden = false; scrollTo(0, 0); }, () => [$("#gpBody .gtiles"), $("#gpTitle")]);
+}
+function closeGroup() {
+  if ($("#gp").hidden) return;
+  const parts = () => { const el = $(`#lib .stack[data-g="${CSS.escape(gp.id)}"]`); return el ? [$(".pile", el), $(".slabel span", el)] : []; };
+  pageSwap([$("#gpBody .gtiles"), $("#gpTitle")], () => { $("#gp").hidden = true; $("#ov").hidden = false; scrollTo(0, gp.scrollY || 0); }, parts);
+}
+$("#gpBack").onclick = closeGroup;
+document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#gp").hidden) closeGroup(); });
 
 async function api(url, opt) {
   const r = await fetch(url, opt);
@@ -1970,7 +2276,7 @@ $("#updGo").onclick = async () => {
 paint(); setPlayIcon(); setPersp(persp); seg(); setTimeout(seg, 300);
 nojo.liquid();
 requestAnimationFrame(tick);
-if (APP) { $("#hero").hidden = $("#rootBtn").hidden = $("#rescan").hidden = $("#shareBtn").hidden = false; renderSlots(); loadLibrary(); setTimeout(checkUpdate, 3000);
+if (APP) { $("#toprow").hidden = $("#fGrp").hidden = $("#rootBtn").hidden = $("#rescan").hidden = $("#shareBtn").hidden = false; renderSlots(); loadGroups(); loadLibrary(); setTimeout(checkUpdate, 3000);
   setInterval(() => fetch("api/ping").catch(() => {}), 20000); }  // the program ends ~3 min after the window is closed
 else { items = DATA.recordings.map((r, i) => fromRec(r, { id: "s" + i, src: "static" })); renderLib(); }
 </script>

@@ -50,6 +50,7 @@ def main():
                         c.angle(tc.xsens_frame(5), *c.ANGLES["Ellbogen R"]), abs_tol=1e-9)
     library_and_video(rec)
     updates()
+    groups()
     print("ok")
 
 
@@ -203,6 +204,27 @@ def updates():
                     pass
         finally:
             va.HERE, va.DATA_DIR, va._fetch = here, data_dir, fetch
+
+
+def groups():
+    import tempfile
+    data_dir = va.DATA_DIR
+    with tempfile.TemporaryDirectory() as tmp:
+        va.DATA_DIR = Path(tmp) / "data"
+        try:
+            assert va.load_groups() == {"groups": [], "members": {}}
+            out = va.save_groups({"groups": [{"id": "g1", "name": "  Frontal ", "color": 2}],
+                                  "members": {"042_20250101": ["g1", "weg"], "043_20250101": ["weg"]}})
+            assert out == {"groups": [{"id": "g1", "name": "Frontal", "color": 2}], "members": {"042_20250101": ["g1"]}}
+            assert va.load_groups() == out  # unknown group ids and empty members are dropped
+            for bad in ([], {"groups": {}, "members": {}}, {"groups": [{"id": "", "name": "x", "color": 0}], "members": {}}):
+                try:
+                    va.save_groups(bad)
+                    raise AssertionError(f"accepted {bad}")
+                except ValueError:
+                    pass
+        finally:
+            va.DATA_DIR = data_dir
 
 
 if __name__ == "__main__":

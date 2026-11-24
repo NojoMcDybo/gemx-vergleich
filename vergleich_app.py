@@ -218,6 +218,34 @@ def set_root(path):
     (DATA_DIR / "settings.json").write_text(json.dumps({"root": str(p)}), encoding="utf-8")
 
 
+def load_groups():
+    try:
+        return json.loads((DATA_DIR / "groups.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {"groups": [], "members": {}}
+
+
+def save_groups(d):
+    """Groups the user labels on the overview: {"groups": [{id, name, color}], "members": {key: [ids]}}."""
+    if not isinstance(d, dict) or not isinstance(d.get("groups"), list) or not isinstance(d.get("members"), dict):
+        raise ValueError("Gruppen: falsches Format")
+    groups = []
+    for g in d["groups"][:100]:
+        if not (isinstance(g, dict) and isinstance(g.get("id"), str) and isinstance(g.get("name"), str)
+                and isinstance(g.get("color"), int) and 0 < len(g["id"]) <= 24):
+            raise ValueError("Gruppen: falscher Eintrag")
+        groups.append({"id": g["id"], "name": g["name"].strip()[:60], "color": g["color"]})
+    ids = {g["id"] for g in groups}
+    members = {k[:40]: [i for i in v if i in ids] for k, v in d["members"].items()
+               if isinstance(k, str) and isinstance(v, list)}
+    out = {"groups": groups, "members": {k: v for k, v in members.items() if v}}
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    tmp = DATA_DIR / "groups.json.tmp"
+    tmp.write_text(json.dumps(out, ensure_ascii=False), encoding="utf-8")
+    tmp.replace(DATA_DIR / "groups.json")  # never a half-written file
+    return out
+
+
 def library_json():
     root = root_dir()
     found = scan(root) if root else {}
@@ -473,6 +501,8 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(200, page, "text/html; charset=utf-8")
             if url.path == "/api/library":
                 return self._send(200, library_json())
+            if url.path == "/api/groups":
+                return self._send(200, json.dumps(load_groups(), ensure_ascii=False))
             if url.path == "/api/rec":
                 return self._send(200, get_rec(q.get("key", "")))
             if url.path == "/api/video":
@@ -539,6 +569,10 @@ class Handler(BaseHTTPRequestHandler):
                 what = "Ordner"
                 set_root(json.loads(body.getvalue().decode("utf-8"))["path"])
                 return self._send(200, library_json())
+            if url.path == "/api/groups":
+                what = "Gruppen"
+                out = save_groups(json.loads(body.getvalue().decode("utf-8")))
+                return self._send(200, json.dumps(out, ensure_ascii=False))
             if url.path == "/api/export":
                 what = "Teilen"
                 req = json.loads(body.getvalue().decode("utf-8"))
