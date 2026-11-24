@@ -116,7 +116,30 @@ img, video, svg, canvas { -webkit-user-drag: none; }
 .cmp { margin-top: 12px; }
 /* Gruppen: Karte neben der Ablage, Punkte auf den Karten, Stapel, Gruppenseite */
 .toprow { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 16px; margin: 22px 0 28px; }
-.toprow > .hero { margin: 0; }
+.toprow > .hero { margin: 0; grid-column: 1; grid-row: 1; transition: box-shadow .3s var(--n-ease), scale .6s var(--n-ease), opacity .5s, filter .5s; }
+/* Gruppen im Vergleich: fährt bei „Cluster“ von rechts über das Ablagefeld, beim Ziehen von Dateien wieder weg */
+.gcmp { grid-column: 1; grid-row: 1; container-type: inline-size; position: relative; z-index: 2; min-width: 0; border-radius: 28px; padding: 18px 22px 16px; background: var(--n-surface);
+  box-shadow: inset 0 0 0 1.5px rgba(var(--fx),.07), 0 18px 40px rgba(0,0,0,.16); display: flex; flex-direction: column; gap: 10px;
+  clip-path: inset(0 0 0 100% round 28px); translate: 56px 0; opacity: 0; visibility: hidden; pointer-events: none;
+  transition: clip-path .75s cubic-bezier(.2, .9, .25, 1), translate .75s cubic-bezier(.2, .9, .25, 1), opacity .35s, visibility 0s .75s; }
+.toprow.cmp:not(:has(.hero.over)) .gcmp { clip-path: inset(0 round 28px); translate: 0 0; opacity: 1; visibility: visible; pointer-events: auto; transition-delay: 0s; }
+.toprow.cmp:not(:has(.hero.over)) > .hero { scale: .97; opacity: .3; filter: blur(2px); }
+.gch { display: flex; align-items: baseline; gap: 12px; padding: 0 4px; }
+.gch small { color: var(--n-faint); font-size: 12px; }
+/* no scrolling: columns shrink with the card, the card grows with its rows */
+.gcm { display: flex; flex-direction: column; gap: 3px; }
+.gcr { display: grid; grid-template-columns: var(--cols); gap: 3px; align-items: center; min-height: 30px; padding: 0; border: 0; border-radius: 9px; background: none; color: inherit; font: inherit; text-align: left; }
+button.gcr { cursor: pointer; }
+button.gcr:hover { background: rgba(var(--fx),.04); }
+button.gcr:focus-visible { outline: 2px solid var(--gx); outline-offset: 1px; }
+.gcr.head { min-height: 0; font-size: clamp(10px, 1.2cqi, 11.5px); color: var(--n-faint); }
+.gcr.head span { text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gcr .gn { display: flex; align-items: center; gap: 8px; padding: 0 8px; min-width: 0; font-weight: 600; font-size: 13px; }
+.gcr .gn b { font-weight: inherit; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gcr .gn .count { font-weight: 400; }
+.gcr .c { min-width: 0; overflow: hidden; white-space: nowrap; height: 26px; border-radius: 5px; display: grid; place-items: center; font-size: clamp(10px, 1.25cqi, 12px); font-variant-numeric: tabular-nums; }
+.gcmp .gempty { color: var(--n-faint); font-size: 13px; padding: 18px 4px; }
+@media (prefers-reduced-motion: reduce) { .gcmp, .toprow > .hero { transition: none; } }
 .groups { position: relative; border-radius: 28px; padding: 18px 16px; background: var(--n-surface); box-shadow: inset 0 0 0 1.5px rgba(var(--fx),.07); min-height: 160px; }
 .groups .gh { display: flex; align-items: center; gap: 8px; padding: 0 2px 0 4px; }
 .groups .gh .count { flex: 1; }
@@ -190,6 +213,9 @@ button.gdot:hover { transform: scale(1.35); }
 .rc:hover { box-shadow: 0 6px 18px rgba(0,0,0,.3), inset 0 0 0 1px rgba(var(--fx),.4); }
 .rc.cur { box-shadow: 0 0 0 2px var(--gx), 0 6px 18px rgba(0,0,0,.3); }
 .rc:focus-visible { outline: 2px solid var(--gx); outline-offset: 2px; }
+/* Steg zwischen Simulation und Analyse: liegt im Spalt am Anfang der zweiten Spalte */
+.eval .gsplit.divider { position: relative; grid-column: 2; grid-row: 2; justify-self: start; top: auto; bottom: auto; }
+.gsplit:focus-visible { outline: 2px solid var(--gx); outline-offset: -2px; border-radius: 6px; }
 .gana { grid-column: 2; grid-row: 2; margin: 0 20px 0 12px; min-height: 0; border-radius: 22px; padding: 14px 18px 12px; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 10px; }
 .gah { display: flex; align-items: center; gap: 6px; }
 .gah h2 { flex: 1; min-width: 0; margin: 0; font: 600 17px var(--n-font-display); letter-spacing: -.01em; }
@@ -512,6 +538,7 @@ html.swapping .lcard { view-transition-name: none !important; }
     </div>
     <div class="go"><span class="count" id="goStatus" role="status"></span><button class="n-btn primary" id="go" disabled>Vergleichen</button></div>
   </div>
+  <div class="gcmp" id="gCmp" aria-label="Gruppen im Vergleich"></div>
   <div class="groups" id="groups">
     <div class="gh"><span class="n-eyebrow">Gruppen</span><span class="count" id="gCount"></span></div>
     <div class="glist"><div id="gList"></div>
@@ -567,6 +594,7 @@ html.swapping .lcard { view-transition-name: none !important; }
     </aside>
   </div>
   <!-- Gruppenmodus: links die Aufnahmen der Gruppe, rechts die Analyse -->
+  <div class="divider gsplit" id="gSplit" data-help="gsplit" role="separator" aria-orientation="vertical" tabindex="0" aria-label="Aufteilung zwischen Simulation und Analyse (Pfeil links/rechts)" title="Ziehen: Aufteilung ändern · Doppelklick: zurücksetzen" hidden><i></i></div>
   <aside class="gana n-card" id="gAna" hidden>
     <div class="gah"><h2 id="gAnaT"></h2><span class="acts"><button class="n-ico sm" data-i="document" id="gRep" data-help="report" title="Auswertung lesen"></button><button class="n-ico sm" data-i="help" id="gHelp" data-help="help" title="Kurzhilfe: erklärt, was unter der Maus ist"></button></span></div>
     <div class="ganav"><button class="n-ico sm" data-i="back" id="gAnaPrev" title="Vorherige Grafik" aria-label="Vorherige Grafik"></button><span class="count" id="gAnaN" role="status"></span><button class="n-ico sm flipx" data-i="back" id="gAnaNext" title="Nächste Grafik" aria-label="Nächste Grafik"></button></div>
@@ -736,6 +764,7 @@ function renderLib() {
   const show = items.filter(it => filter === "all" || (filter === "done") === !!it.card);
   const done = items.filter(it => it.card).length;
   $("#count").textContent = items.length ? `${done} von ${items.length} verglichen` : "";
+  if (filter === "grp") renderGroupCmp();
   let html = filter === "grp" ? pilesHtml() : show.map(it => cardHtml(it)).join("");
   if (!items.length) html = APP ? `<div class="empty"><div class="ring" data-i="folder"></div><div>${root ? "Keine Aufnahmen in diesem Ordner." : "Ordner mit den Aufnahmen wählen."}</div><button class="n-btn" data-pickroot>Ordner wählen</button></div>`
     : `<div class="empty">Keine Aufnahmen.</div>`;
@@ -772,7 +801,7 @@ function renderLib() {
 }
 const vtName = it => "c-" + String(it.id).replace(/[^\w-]/g, "_");
 // filtering: cards that stay slide to their new place, the others fade out or in
-$$("#filter button").forEach(b => b.onclick = () => { if (b.dataset.f === filter) return; $$("#filter button").forEach(x => x.classList.toggle("active", x === b)); const piles = filter === "grp" || b.dataset.f === "grp"; filter = b.dataset.f; piles ? flipLib(renderLib) : vt(renderLib); });
+$$("#filter button").forEach(b => b.onclick = () => { if (b.dataset.f === filter) return; $$("#filter button").forEach(x => x.classList.toggle("active", x === b)); const piles = filter === "grp" || b.dataset.f === "grp"; filter = b.dataset.f; $("#toprow").classList.toggle("cmp", filter === "grp"); piles ? flipLib(renderLib) : vt(renderLib); });
 
 // ---- Gruppen: selbst beschriftete Cluster, gespeichert im Programm (groups.json) ----
 // shortcut: 12 colors, a 13th group repeats the first one; add colors if people need more groups
@@ -983,6 +1012,23 @@ function frameInfo(r) {
   return r._fi = { face: c ? face : null, pose, depth, side, pa: s.pa_mm };
 }
 
+// ---- Startseite: alle Gruppen nebeneinander, je Messwert Median der Gruppe gegen die übrigen ----
+function renderGroupCmp() {
+  const box = $("#gCmp"), S = stacks().map(s => ({ ...s, list: s.list.filter(it => it.card) })).filter(s => s.list.length);
+  const head = `<div class="gch"><span class="n-eyebrow">Gruppen im Vergleich</span><small>Median der Gruppe gegen die übrigen Aufnahmen · rot schlechter, grün besser · Zeile antippen öffnet die Gruppe</small></div>`;
+  if (!S.length) { box.innerHTML = head + `<div class="gempty">Noch keine Gruppe mit verglichenen Aufnahmen.</div>`; return; }
+  const cols = `minmax(0, 1.5fr) repeat(${GM.length}, minmax(0, 1fr))`;
+  const cell = (S1, [k, u, f, , d]) => {
+    const a = med(gvals(S1.list, f)), b = med(gvals(restOf(S1), f)), r = a / b;
+    if (!okv(r) || r <= 0) return `<span class="c" style="background:rgba(var(--fx),.03)" title="${k}: zu wenig Werte">–</span>`;
+    const tt = clamp(Math.log2(r), -1, 1), bg = Math.abs(r - 1) < 0.05 ? "rgba(var(--fx),.05)" : `color-mix(in srgb, var(${tt > 0 ? "--n-low" : "--n-ok"}) ${Math.round(12 + Math.abs(tt) * 34)}%, transparent)`;
+    return `<span class="c" style="background:${bg}" title="${k}: Gruppe ${num(a, d)} ${u} · übrige ${num(b, d)} ${u}">${pct(r)}</span>`;
+  };
+  box.innerHTML = head + `<div class="gcm" style="--cols:${cols}"><div class="gcr head"><span></span>${GM.map(([k, u]) => `<span title="${k} (${u})">${k}</span>`).join("")}</div>`
+    + S.map(s => `<button class="gcr" data-g="${esc(s.g.id)}" title="${esc(s.g.name)} öffnen"><span class="gn"><i class="gdot" style="--c:${gcolor(s.g)}"></i><b>${esc(s.g.name)}</b><span class="count">${s.list.length}</span></span>${GM.map(m => cell(s, m)).join("")}</button>`).join("") + `</div>`;
+  $$(".gcr[data-g]", box).forEach(b => b.onclick = () => openGroup(b.dataset.g, b));
+}
+
 // ---- Analysekarte: sechs Grafiken zum Durchklicken ----
 const tx = (x, y, s, c = "", a = "start") => `<text x="${(+x).toFixed(1)}" y="${(+y).toFixed(1)}"${c ? ` class="${c}"` : ""} text-anchor="${a}">${s}</text>`;
 const pct = r => (r >= 1 ? "+" : "−") + num(Math.abs(r - 1) * 100) + " %";
@@ -990,11 +1036,12 @@ const note = (w, h, s) => tx(w / 2, h / 2, s, "", "middle");
 const nameOf = it => esc((it.nr ? it.nr + " · " : "") + it.name);
 const arcPath = (cx, cy, r, a0, a1) => { const p = a => `${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a)).toFixed(1)}`; return `M${p(a0)}A${r} ${r} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${p(a1)}`; };
 
+const profRows = (G, rest) => GM.map(([k, u, f, , d]) => { const a = med(gvals(G.list, f)), b = med(gvals(rest, f)); return { k, u, f, d, a, b, r: a / b }; })
+  .filter(x => okv(x.r) && x.r > 0).sort((p, q) => Math.abs(Math.log(q.r)) - Math.abs(Math.log(p.r)));
 function anaProfile(G, w, h) {
   const rest = restOf(G);
   if (!rest.length) return note(w, h, "Keine übrigen Aufnahmen zum Vergleich.");
-  const rows = GM.map(([k, u, f, , d]) => { const a = med(gvals(G.list, f)), b = med(gvals(rest, f)); return { k, u, d, a, b, r: a / b }; })
-    .filter(x => okv(x.r) && x.r > 0).sort((p, q) => Math.abs(Math.log(q.r)) - Math.abs(Math.log(p.r)));
+  const rows = profRows(G, rest);
   const LW = Math.round(w * 0.6), half = (LW - 86 - 60) / 2, cx = 86 + half, top = 24, rh = Math.min(30, (h - top - 22) / rows.length);
   const mx = Math.max(1, ...rows.map(x => Math.abs(Math.log2(x.r))));
   let s = tx(0, 11, `Median der Gruppe gegen die übrigen ${rest.length} Aufnahmen, sortiert nach Abstand`)
@@ -1007,8 +1054,12 @@ function anaProfile(G, w, h) {
       + tx(worse ? cx + Math.max(len, 0) + 6 : cx + Math.min(len, 0) - 6, y + rh / 2 + 4, pct(x.r), "t1", worse ? "start" : "end") + "</g>";
   });
   s += tx(cx - 6, top + rows.length * rh + 14, "besser", "", "end") + tx(cx + 6, top + rows.length * rh + 14, "schlechter");
-  // Körperkarte: welche Gelenke in dieser Gruppe weiter von Xsens weg liegen als bei den übrigen
-  const x0 = LW + 18, RW = w - x0, sc = Math.min(RW / 60, (h - 84) / 104), ox = x0 + (RW - 60 * sc) / 2, oy = top - 6 * sc;
+  return s + bodyMap(G, rest, LW + 18, w - LW - 18, top, h);
+}
+// Körperkarte: welche Gelenke in dieser Gruppe weiter von Xsens weg liegen als bei den übrigen
+function bodyMap(G, rest, x0, RW, top, h) {
+  let s = "";
+  const sc = Math.min((RW - 28) / 60, (h - 84) / 104), ox = x0 + (RW - 60 * sc) / 2, oy = top - 6 * sc;
   const jr = Object.fromEntries(J.map(n => [n, med(gvals(G.list, sm => sm.joint_mm?.[n])) / med(gvals(rest, sm => sm.joint_mm?.[n]))]));
   const p = j => [ox + FIG[J[j]][0] * sc, oy + FIG[J[j]][1] * sc];
   s += BONES.map(([a, b]) => `<line x1="${p(a)[0]}" y1="${p(a)[1]}" x2="${p(b)[0]}" y2="${p(b)[1]}" stroke="${fx(.16)}" stroke-width="2" stroke-linecap="round"/>`).join("");
@@ -1023,23 +1074,50 @@ function anaProfile(G, w, h) {
 }
 
 function anaSpread(G, w, h) {
-  const rest = restOf(G), col = gcolor(G.g), L = 86, R = w - 70, top = 22, rh = (h - top) / GM.length;
+  const rest = restOf(G), L = 86, R = w - 70, top = 22, rh = (h - top) / GM.length;
   let s = tx(0, 11, "Jeder Punkt eine Aufnahme: farbig die Gruppe, grau die übrigen, umrandet die aktuelle · Striche = Median");
   GM.forEach(([k, u, f, , d], i) => {
-    const y = top + i * rh + rh / 2, gv = G.list.map(it => f(it.card.summary)), rv = gvals(rest, f), all = gv.concat(rv).filter(okv);
-    s += tx(0, y + 4, k, "t1") + `<line x1="${L}" x2="${R}" y1="${y}" y2="${y}" stroke="${fx(.08)}"/>`;
-    if (!all.length) return;
-    let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * 0.06 || Math.abs(hi) * 0.1 || 1; lo -= pad; hi += pad;
-    const X = v => L + (v - lo) / (hi - lo) * (R - L), gm = med(gv), rm = med(rv);
-    rv.forEach(v => s += `<circle cx="${X(v)}" cy="${y}" r="3.2" fill="${fx(.26)}"/>`);
-    if (okv(rm)) s += `<line x1="${X(rm)}" x2="${X(rm)}" y1="${y - 8}" y2="${y + 8}" stroke="${fx(.45)}" stroke-dasharray="2 2"/>`;
-    if (okv(gm)) s += `<line x1="${X(gm)}" x2="${X(gm)}" y1="${y - 9}" y2="${y + 9}" stroke="${col}" stroke-width="1.5"/>`;
-    const dot = kk => { const v = gv[kk], cur = kk === G.k; if (!okv(v)) return "";
-      return `<circle data-k="${kk}" cx="${X(v)}" cy="${y}" r="${cur ? 6 : 4.5}" fill="${col}" fill-opacity="${cur ? 1 : .8}"${cur ? ` stroke="${css("--n-ink")}" stroke-width="2"` : ""}><title>${nameOf(G.list[kk])}: ${num(v, d)} ${u}</title></circle>`; };
-    s += gv.map((_, kk) => kk === G.k ? "" : dot(kk)).join("") + dot(G.k);
-    s += tx(w, y + 4, `${num(gm, d)} ${u}`, "t1", "end");
+    const y = top + i * rh + rh / 2, gv = G.list.map(it => f(it.card.summary));
+    s += tx(0, y + 4, k, "t1") + strip(G, rest, f, u, d, y, L, R) + tx(w, y + 4, `${num(med(gv), d)} ${u}`, "t1", "end");
   });
   return s;
+}
+function strip(G, rest, f, u, d, y, L, R) {  // one metric: every recording a dot on its own scale
+  const col = gcolor(G.g), gv = G.list.map(it => f(it.card.summary)), rv = gvals(rest, f), all = gv.concat(rv).filter(okv);
+  let s = `<line x1="${L}" x2="${R}" y1="${y}" y2="${y}" stroke="${fx(.08)}"/>`;
+  if (!all.length) return s;
+  let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * 0.06 || Math.abs(hi) * 0.1 || 1; lo -= pad; hi += pad;
+  const X = v => L + (v - lo) / (hi - lo) * (R - L), gm = med(gv), rm = med(rv);
+  rv.forEach(v => s += `<circle cx="${X(v)}" cy="${y}" r="3.2" fill="${fx(.26)}"/>`);
+  if (okv(rm)) s += `<line x1="${X(rm)}" x2="${X(rm)}" y1="${y - 8}" y2="${y + 8}" stroke="${fx(.45)}" stroke-dasharray="2 2"/>`;
+  if (okv(gm)) s += `<line x1="${X(gm)}" x2="${X(gm)}" y1="${y - 9}" y2="${y + 9}" stroke="${col}" stroke-width="1.5"/>`;
+  const dot = kk => { const v = gv[kk], cur = kk === G.k; if (!okv(v)) return "";
+    return `<circle data-k="${kk}" cx="${X(v)}" cy="${y}" r="${cur ? 6 : 4.5}" fill="${col}" fill-opacity="${cur ? 1 : .8}"${cur ? ` stroke="${css("--n-ink")}" stroke-width="2"` : ""}><title>${nameOf(G.list[kk])}: ${num(v, d)} ${u}</title></circle>`; };
+  return s + gv.map((_, kk) => kk === G.k ? "" : dot(kk)).join("") + dot(G.k);
+}
+
+// Überblick (große Karte): Steckbrief und Streuung in einer Tabelle, rechts die Körperkarte
+function anaOverview(G, w, h) {
+  const rest = restOf(G);
+  if (!rest.length) return note(w, h, "Keine übrigen Aufnahmen zum Vergleich.");
+  const rows = profRows(G, rest), MW = Math.round(w * 0.26), TW = w - MW - 28, top = 40, rh = Math.min(64, (h - top - 26) / rows.length);
+  const BW = clamp(TW * 0.3, 140, 260), cx = 92 + BW / 2, half = BW / 2 - 46, SL = 92 + BW + 18, SR = TW - 78;
+  const mx = Math.max(1, ...rows.map(x => Math.abs(Math.log2(x.r))));
+  let s = tx(0, 11, `Je Messwert: Median der Gruppe gegen die übrigen ${rest.length} Aufnahmen, sortiert nach Abstand`)
+    + tx(cx, 31, "Abstand", "", "middle") + tx((SL + SR) / 2, 31, "jede Aufnahme ein Punkt", "", "middle") + tx(TW, 31, "Gruppe", "", "end");
+  rows.forEach((x, i) => {
+    const y = top + i * rh, ym = y + rh / 2, bh = Math.min(14, rh - 10), len = Math.log2(x.r) / mx * half, worse = x.r > 1, small = Math.abs(x.r - 1) < 0.05;
+    const col = small ? fx(.3) : css(worse ? "--n-low" : "--n-ok");
+    if (i % 2 === 0) s += `<rect x="-6" y="${y}" width="${TW + 12}" height="${rh}" rx="6" fill="${fx(.025)}"/>`;
+    s += `<g><title>${x.k}: Gruppe ${num(x.a, x.d)} ${x.u} · übrige ${num(x.b, x.d)} ${x.u}</title>${tx(0, ym + 4, x.k, "t1 b")}`
+      + `<line x1="${cx}" x2="${cx}" y1="${y + 3}" y2="${y + rh - 3}" stroke="${fx(.16)}"/>`
+      + `<rect x="${Math.min(cx, cx + len)}" y="${ym - bh / 2}" width="${Math.max(1, Math.abs(len))}" height="${bh}" rx="2" fill="${col}" fill-opacity="${PALE}"/>`
+      + tx(worse ? cx + Math.max(len, 0) + 6 : cx + Math.min(len, 0) - 6, ym + 4, pct(x.r), "t1", worse ? "start" : "end") + "</g>"
+      + strip(G, rest, x.f, x.u, x.d, ym, SL, SR) + tx(TW, ym + 4, `${num(x.a, x.d)} ${x.u}`, "t1", "end");
+  });
+  const by = top + rows.length * rh + 16;
+  s += tx(cx - 6, by, "besser", "", "end") + tx(cx + 6, by, "schlechter") + tx((SL + SR) / 2, by, "Strich: Median der Gruppe · gestrichelt: der übrigen", "", "middle");
+  return s + `<line x1="${TW + 14}" x2="${TW + 14}" y1="${top}" y2="${h - 4}" stroke="${fx(.08)}"/>` + bodyMap(G, rest, TW + 28, MW, top, h);
 }
 
 function anaState(G, w, h) {
@@ -1090,18 +1168,18 @@ const KIND = [  // name, unit, value, thresholds, decimals, what the thresholds 
   ["Knochenlänge", "% Schwankung", sm => sm.bones ? 100 * mean(Object.values(sm.bones).map(b => b.cv)) : null, [5, 10], 1, v => v],
 ];
 function anaKind(G, w, h) {
-  const rest = restOf(G), cur = G.list[G.k], D = Math.min(h - 30, w * 0.42), cx = D / 2, top = 22;
+  const rest = restOf(G), cur = G.list[G.k], D = Math.min(h - 44, w * 0.42), cx = D / 2, top = 22;
   let s = tx(0, 11, "Punkte: Aufnahmen der Gruppe, umrandet die aktuelle · gestrichelt: Median der übrigen · Zahl: Median der Gruppe");
   // Fehlerwolke von oben: wohin das GemX-Becken gegenüber Xsens verrutscht, Kamera unten
   const L = loaded(G).filter(it => it.rec.series.cam), pts = [];
   L.forEach(it => { const fi = frameInfo(it.rec), st = Math.max(1, Math.floor(fi.depth.length / 140)); for (let i = 0; i < fi.depth.length; i += st) pts.push([fi.side[i], fi.depth[i], it === cur]); });
   if (pts.length) {
     const cy = top + D * 0.42, camY = top + D - 4, lim = [...pts.map(p => Math.max(Math.abs(p[0]), Math.abs(p[1])))].sort((a, b) => a - b)[Math.floor(pts.length * 0.95)] || 1;
-    const sc = D * 0.36 / lim, sd = k => { const m = mean(pts.map(p => p[k])); return [m, Math.sqrt(mean(pts.map(p => (p[k] - m) ** 2)))]; }, [ms, ss] = sd(0), [md, sdd] = sd(1);
+    const sc = D * 0.36 / lim, inside = p => Math.abs(p[0] * sc) <= D / 2 && p[1] * sc <= cy - top - 4 && p[1] * sc >= cy - camY, sd = k => { const m = mean(pts.map(p => p[k])); return [m, Math.sqrt(mean(pts.map(p => (p[k] - m) ** 2)))]; }, [ms, ss] = sd(0), [md, sdd] = sd(1);
     s += `<path d="M${cx} ${camY}L${cx - D * 0.46} ${top + 4}M${cx} ${camY}L${cx + D * 0.46} ${top + 4}" stroke="${fx(.1)}" fill="none"/><line x1="${cx}" x2="${cx}" y1="${camY}" y2="${top + 4}" stroke="${fx(.14)}" stroke-dasharray="3 3"/>`
       + `<ellipse cx="${cx + ms * sc}" cy="${cy - md * sc}" rx="${Math.max(3, 2 * ss * sc)}" ry="${Math.max(3, 2 * sdd * sc)}" fill="${css("--n-low")}" fill-opacity=".14" stroke="${css("--n-low")}" stroke-opacity=".5"/>`
-      + pts.filter(p => !p[2]).map(p => `<circle cx="${(cx + clamp(p[0] * sc, -D / 2, D / 2)).toFixed(1)}" cy="${(cy - clamp(p[1] * sc, -D / 2, D / 2)).toFixed(1)}" r="1.5" fill="${fx(.3)}"/>`).join("")
-      + pts.filter(p => p[2]).map(p => `<circle cx="${(cx + clamp(p[0] * sc, -D / 2, D / 2)).toFixed(1)}" cy="${(cy - clamp(p[1] * sc, -D / 2, D / 2)).toFixed(1)}" r="1.7" fill="${css("--gx")}" fill-opacity=".8"/>`).join("")
+      + pts.filter(p => !p[2] && inside(p)).map(p => `<circle cx="${(cx + p[0] * sc).toFixed(1)}" cy="${(cy - p[1] * sc).toFixed(1)}" r="1.5" fill="${fx(.3)}"/>`).join("")
+      + pts.filter(p => p[2] && inside(p)).map(p => `<circle cx="${(cx + p[0] * sc).toFixed(1)}" cy="${(cy - p[1] * sc).toFixed(1)}" r="1.7" fill="${css("--gx")}" fill-opacity=".8"/>`).join("")
       + `<circle cx="${cx}" cy="${cy}" r="3" fill="${css("--n-ink")}"/><rect x="${cx - 7}" y="${camY - 2}" width="14" height="10" rx="2" fill="${fx(.45)}"/>`
       + tx(D, top + 16, `Tiefe ${num(med(gvals(G.list, sm => sm.path_depth_mm)))} mm`, "t1 b", "end") + tx(D, top + 29, "entlang der Sicht", "", "end")
       + tx(D, cy + D * 0.3, `Bildebene ${num(med(gvals(G.list, sm => sm.path_plane_mm)))} mm`, "t1 b", "end") + tx(D, cy + D * 0.3 + 13, "quer zur Sicht", "", "end")
@@ -1160,14 +1238,14 @@ function anaAngles(G, w, h) {
       + tx(cx, cy + 51, `Bias ${sg(bias, 0)}°`, "t1", "middle")
       + tx(cx, cy + 69, `Gruppe ${okv(gRom) ? pct(gRom + 1) : "–"} · ${sg(gBias, 0)}°`, "", "middle");
   });
-  const y = h - 6;
+  const y = Math.min(h - 6, 20 + (4 / cols - 1) * rH + 36 + R + 96);
   return out + `<rect x="0" y="${y - 8}" width="14" height="6" rx="1" fill="${fx(.22)}"/>` + tx(20, y, "Xsens-Bereich")
     + `<rect x="120" y="${y - 7}" width="14" height="3" rx="1" fill="${css("--gx")}"/>` + tx(140, y, "GemX-Bereich")
     + `<line x1="240" x2="254" y1="${y - 5}" y2="${y - 5}" stroke="${css("--n-ink")}" stroke-dasharray="2 2"/>` + tx(260, y, "Xsens-Spitze");
 }
 
 function anaGaps(G, w, h) {
-  const n = G.list.length, top = 22, rh = Math.min(42, (h - top) / n), L = 44, R = w - 150, bins = Math.max(20, Math.floor((R - L) / 4.5)), bw = (R - L) / bins, bad = TH.paFrame[1];
+  const n = G.list.length, top = 22, rh = Math.min(56, (h - top) / n), L = 44, R = w - 150, bins = Math.max(20, Math.floor((R - L) / 4.5)), bw = (R - L) / bins, bad = TH.paFrame[1];
   let s = tx(0, 11, `Jede Aufnahme ein Streifen, jedes Feld ein Abschnitt · kräftig = Haltungsfehler über ${bad} mm`);
   G.list.forEach((it, k) => {
     const y = top + k * rh, cur = k === G.k, pa = it.rec?.series?.pa_mm, src = pa || it.card.spark;
@@ -1185,9 +1263,13 @@ function anaGaps(G, w, h) {
   return s;
 }
 
-const ANA = [["Steckbrief", "Steckbrief", anaProfile], ["Streuung", "Streuung", anaSpread], ["Bewegungszustand", "Zustand", anaState],
-  ["Fehlerart", "Fehlerart", anaKind], ["Gelenkwinkel", "Winkel", anaAngles], ["Ausfälle", "Ausfälle", anaGaps]];
-$("#gAnaPrev").onclick = () => goAna(ev.grp.ana - 1, -1); $("#gAnaNext").onclick = () => goAna(ev.grp.ana + 1, 1);
+// je Seite: Titel und Teile [Grafik, Hilfe, y-Anteil, Höhen-Anteil]
+const ANA6 = [["Steckbrief", [[anaProfile, "ana0"]]], ["Streuung", [[anaSpread, "ana1"]]], ["Bewegungszustand", [[anaState, "ana2"]]],
+  ["Fehlerart", [[anaKind, "ana3"]]], ["Gelenkwinkel", [[anaAngles, "ana4"]]], ["Ausfälle", [[anaGaps, "ana5"]]]];
+const ANA3 = [["Überblick", [[anaOverview, "anaO"]]], ["Zustand und Fehlerart", [[anaState, "ana2", 0, .42], [anaKind, "ana3", .47, .53]]],
+  ["Winkel und Ausfälle", [[anaAngles, "ana4", 0, .4], [anaGaps, "ana5", .45, .55]]]];
+const anaPages = () => { const b = $("#gAnaBody"); return b.clientWidth >= 820 && b.clientHeight >= 480 ? ANA3 : ANA6; };
+$("#gAnaPrev").onclick = () => goAna(-1); $("#gAnaNext").onclick = () => goAna(1);
 $("#gRep").onclick = () => showReport(true); $("#gHelp").onclick = () => setHelp(!helpOn);
 // Wischen durch die Grafiken: mit der Maus ziehen oder waagerecht scrollen (Trackpad)
 const gb = $("#gAnaBody");
@@ -1207,7 +1289,7 @@ function gswEnd(e) {
   const s = gsw; gsw = null; if (!s?.on) return;
   gswDone = performance.now();
   const dx = e.clientX - s.x, svg = gb.firstElementChild;
-  if (Math.abs(dx) > 60) return goAna(ev.grp.ana + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+  if (Math.abs(dx) > 60) return goAna(dx < 0 ? 1 : -1);
   if (!svg) return;
   const from = { translate: svg.style.translate, opacity: svg.style.opacity };
   svg.style.translate = svg.style.opacity = "";
@@ -1220,23 +1302,48 @@ gb.addEventListener("wheel", e => {
   e.preventDefault();
   const now = performance.now(); if (now - gwT < 600) { gwAcc = 0; return; }  // the trackpad's coasting would page on
   gwAcc += e.deltaX;
-  if (Math.abs(gwAcc) > 80) { const d = Math.sign(gwAcc); gwT = now; gwAcc = 0; goAna(ev.grp.ana + d, d); }
+  if (Math.abs(gwAcc) > 80) { const d = Math.sign(gwAcc); gwT = now; gwAcc = 0; goAna(d); }
 }, { passive: false });
-function goAna(i, dir) {
+// G.ana zählt immer in den sechs Einzelseiten; die große Karte zeigt je zwei davon auf einer Seite
+const pageOf = (P, a) => P === ANA3 ? a >> 1 : a;
+function goAna(d) {
   const G = ev.grp; if (!G) return;
-  i = (i + ANA.length) % ANA.length; if (i === G.ana) return;
-  dir = dir ?? Math.sign(i - G.ana); G.ana = i; store.set("gemx.ana", i); renderAna(dir);
+  const P = anaPages(), n = P.length, j = (pageOf(P, G.ana) + d + n) % n;
+  G.ana = P === ANA3 ? 2 * j : j; store.set("gemx.ana", G.ana); renderAna(d);
 }
 function renderAna(dir = 0) {
   const G = ev.grp, box = $("#gAnaBody"); if (!G || $("#ev").hidden) return;
-  const w = box.clientWidth, h = box.clientHeight, [t, , fn] = ANA[G.ana];
-  $("#gAnaT").textContent = t; $("#gAnaN").textContent = `${G.ana + 1} / ${ANA.length}`; box.dataset.help = "ana" + G.ana;
+  const P = anaPages(), w = box.clientWidth, h = box.clientHeight, i = pageOf(P, G.ana);
+  const [t, parts] = P[i];
+  $("#gAnaT").textContent = t; $("#gAnaN").textContent = `${i + 1} / ${P.length}`; box.dataset.help = parts[0][1];
   if (!w || !h) return;
-  box.innerHTML = `<svg width="${w}" height="${h}">${fn(G, w, h)}</svg>`;
+  const body = parts.map(([fn, help, y0 = 0, hh = 1], i) => { const y = Math.round(y0 * h), ph = Math.round(hh * h);
+    return (i ? `<line x1="0" x2="${w}" y1="${y - Math.round(.025 * h)}" y2="${y - Math.round(.025 * h)}" stroke="${fx(.08)}"/>` : "")
+      + `<g data-help="${help}" transform="translate(0 ${y})">${fn(G, w, ph)}</g>`; }).join("");
+  box.innerHTML = `<svg width="${w}" height="${h}">${body}</svg>`;
   $$("[data-k]", box).forEach(el => el.onclick = () => gSwitch(+el.dataset.k));
   if (dir && !calm()) box.firstChild.animate([{ opacity: 0, translate: `${dir * 24}px 0` }, { opacity: 1, translate: "0 0" }], { duration: 340, easing: "cubic-bezier(.22, 1, .36, 1)" });
 }
 new ResizeObserver(() => renderAna()).observe($("#gAnaBody"));
+
+// ---- Steg in der Mitte: Breite von Simulation und Analyse, gemerkt für alle Gruppen ----
+const GS0 = 1 / 2.15, gsClamp = f => clamp(f, 0.28, 0.72);
+let gsplit = +store.get("gemx.gsplit") || GS0;  // clamped on use: clamp is defined further down
+function applySplit() { const f = gsClamp(gsplit); $("#ev").style.gridTemplateColumns = ev.grp ? `minmax(0, ${f}fr) minmax(0, ${1 - f}fr)` : ""; }
+function setSplit(f) { gsplit = gsClamp(f); applySplit(); store.set("gemx.gsplit", gsplit.toFixed(3)); }
+{
+  const el = $("#gSplit");
+  el.addEventListener("pointerdown", e => {
+    if (e.button !== 0) return;
+    e.preventDefault(); el.setPointerCapture(e.pointerId);
+    const a = stage.getBoundingClientRect().left, b = $("#gAna").getBoundingClientRect().right;
+    const mv = m => { gsplit = gsClamp((m.clientX - a) / (b - a)); applySplit(); };
+    el.addEventListener("pointermove", mv);
+    el.addEventListener("pointerup", () => { el.removeEventListener("pointermove", mv); setSplit(gsplit); }, { once: true });
+  });
+  el.addEventListener("dblclick", () => setSplit(GS0));
+  el.addEventListener("keydown", e => { const d = { ArrowLeft: -0.03, ArrowRight: 0.03 }[e.key]; if (d) { e.preventDefault(); e.stopPropagation(); setSplit(gsplit + d); } });
+}
 
 // ---- Kartenleiste links: die Aufnahmen der Gruppe, bei wenig Platz übereinander gestapelt ----
 function renderRail() {
@@ -1263,9 +1370,8 @@ async function gSwitch(k) {
   const it = G.list[k];
   G.busy = true; const ok = await ensureRec(it); G.busy = false;
   if (!ok || ev.grp !== G) return;
-  const from = $(`#gRail .rc[data-k="${k}"]`); G.k = k;
-  pageSwap([from, null], () => openEval(it), () => [stage, $("#evTitle")]);
-  from?.scrollIntoView({ block: "nearest", behavior: calm() ? "auto" : "smooth" });
+  G.k = k; openEval(it);  // switching inside a group is instant on purpose: no transition
+  $(`#gRail .rc[data-k="${k}"]`)?.scrollIntoView({ block: "nearest" });
 }
 async function openGroup(id, from) {
   const S = stacks().find(s => s.g.id === id), list = S ? S.list.filter(it => it.card && it.src === "lib") : [];
@@ -1274,7 +1380,7 @@ async function openGroup(id, from) {
   if (!await ensureRec(list[0])) return;
   from = $(`#lib .stack[data-g="${CSS.escape(id)}"]`) || from;  // the pile may have been redrawn meanwhile
   ev.scrollY = scrollY;
-  const G = ev.grp = { g: S.g, list, open: S.list.length - list.length, k: 0, ana: clamp(+store.get("gemx.ana") || 0, 0, ANA.length - 1) };
+  const G = ev.grp = { g: S.g, list, open: S.list.length - list.length, k: 0, ana: clamp(+store.get("gemx.ana") || 0, 0, ANA6.length - 1) };
   pageSwap([$(".pile", from), $(".slabel span", from)], () => openEval(list[0]), () => [stage, $("#evTitle")]);
   list.forEach(it => { if (it.rec) return; prefetch(it); it._pf?.then(() => { if (ev.grp === G) { renderAna(); drawDrawer(); } }); });
 }
@@ -1457,7 +1563,7 @@ function openEval(it) {
   $("#evTitle").textContent = `${r.nr ? r.nr + " · " : ""}${r.name}`;
   const sub = [r.view, r.date, num(ev.N / FPS, 1) + " s"].filter(Boolean).join(" · ");
   $("#evSub").innerHTML = G ? `<i class="gdot" style="--c:${gcolor(G.g)};display:inline-block;width:8px;height:8px;margin:0 6px 0 0"></i>${esc(G.g.name)} · ${G.k + 1} von ${G.list.length}${G.open ? ` (${G.open} offen)` : ""} · ${esc(sub)}` : esc(sub);
-  $("#ev").classList.toggle("grp", !!G); $("#gRail").hidden = $("#gAna").hidden = !G;
+  $("#ev").classList.toggle("grp", !!G); $("#gRail").hidden = $("#gAna").hidden = $("#gSplit").hidden = !G; applySplit();
   $("#evSub").title = r.stem || "";
   $("#gxTag").hidden = !ev.s; $("#hint").hidden = false; $("#camBtn").hidden = !ev.s?.cam;
   $$("[data-grip]").forEach(g => g.hidden = !hasVid());
@@ -1484,7 +1590,7 @@ function closeEval() {
     : () => { const c = id && $(`.lcard[data-id="${CSS.escape(id)}"]`); return c ? [$(".thumb", c), $(".nm", c)] : []; };
   pageSwap([stage, $("#evTitle")], () => {
     stopPlay(); closeLayMenu(); setHelp(false); showReport(false); clearTimeout(ev.cacheT); buildCache(null); vid.removeAttribute("src"); vid.load();
-    if (G) { ev.grp = null; $("#ev").classList.remove("grp"); $("#gRail").hidden = $("#gAna").hidden = true; }
+    if (G) { ev.grp = null; $("#ev").classList.remove("grp"); $("#gRail").hidden = $("#gAna").hidden = $("#gSplit").hidden = true; applySplit(); }
     $("#ev").hidden = true; $("#ov").hidden = false;
     if ($(".thumb video:not([src])", $("#lib"))) renderLib(); else swSync();  // cards stay as they were: no rebuild, no reload
     scrollTo(0, ev.scrollY || 0);
@@ -2158,8 +2264,10 @@ const HELP = {
   graph: ["Gelenkverlauf", "Oben der Gelenkwinkel (weiß Xsens, blau GemX), unten der Abstand dieses Gelenks zwischen beiden (Fläche) und davon der Anteil entlang der Blickrichtung der Kamera (Linie, Tiefe), rot hinterlegt vertauschte Frames. Gleiche Zeitachse wie die Zeitleiste darunter."],
   jpick: ["Gelenkwahl", "Gelenk antippen, um seinen Verlauf zu sehen. Farben wie in der Simulation; R ist die rechte Körperseite."],
   play: ["Wiedergabe", "Abspielen und Anhalten (Leertaste), daneben das Tempo. Pfeiltasten gehen einen Frame, mit Umschalt eine Sekunde."],
+  gsplit: ["Aufteilung", "Ziehen verschiebt die Grenze zwischen Simulation und Analyse; die Grafiken ordnen sich neu an. Doppelklick setzt zurück, mit der Tastatur Pfeil links und rechts."],
   rail: ["Aufnahmen der Gruppe", "Antippen öffnet die Aufnahme, Pfeil hoch und runter wechselt. Blau umrandet ist die aktuelle; sie ist in allen Grafiken rechts und unten hervorgehoben. Der Punkt zeigt die Haltung. Passen nicht alle hin, legen sich die Karten beim Scrollen übereinander."],
   ana0: ["Steckbrief", "Was diese Gruppe von allen übrigen Aufnahmen unterscheidet: je Messwert der Median der Gruppe gegen den der übrigen, oben die größten Unterschiede. Die Körperkarte zeigt, welche Gelenke in der Gruppe weiter von Xsens weg liegen. Ziehen oder Pfeile blättern."],
+  anaO: ["Überblick", "Was diese Gruppe von allen übrigen Aufnahmen unterscheidet. Je Messwert links der Abstand des Gruppenmedians zu den übrigen, oben die größten Unterschiede; daneben jede Aufnahme als Punkt: farbig die Gruppe, grau die übrigen, umrandet die aktuelle. Liegen alle Gruppenpunkte auf einer Seite, gilt das Merkmal für die ganze Bewegungsform. Rechts die Körperkarte. Punkt antippen öffnet die Aufnahme, Ziehen oder Pfeile blättern."],
   ana1: ["Streuung", "Jeder Punkt eine Aufnahme: farbig die Gruppe, grau die übrigen, umrandet die aktuelle. Liegen alle Gruppenpunkte auf einer Seite, gilt das Merkmal für die ganze Bewegungsform; sonst hängt es an einzelnen Aufnahmen. Einen Punkt antippen öffnet die Aufnahme."],
   ana2: ["Bewegungszustand", "Wann GemX schlechter wird, ohne Zeitachse: links der Haltungsfehler je Blickrichtung der Person zur Kamera (von oben gesehen, Kamera unten), rechts je Körperlage. Die graue Linie zeigt, wie viel der Bilder in dieser Lage waren; der dunkle Strich den Wert der aktuellen Aufnahme."],
   ana3: ["Fehlerart", "Woher der Fehler kommt. Links von oben, wohin das Becken bei GemX gegenüber Xsens verrutscht: ist die Wolke entlang der Sicht der Kamera lang, verschätzt sich GemX vor allem in der Entfernung. Rechts je Fehlerart die Aufnahmen der Gruppe vor grün, gelb und rot, gestrichelt der Median der übrigen."],
