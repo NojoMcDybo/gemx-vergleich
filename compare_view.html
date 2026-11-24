@@ -164,23 +164,47 @@ button.gdot:hover { transform: scale(1.35); }
 .stack:hover .pile, .stack:focus-visible .pile { transform: translateY(-4px) scale(1.02); }
 .slabel { display: flex; align-items: center; gap: 9px; padding: 0 6px; font: 600 14px var(--n-font-display); }
 .slabel span:not(.count) { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.gpage .ebar { padding: 0 0 22px; }
-.gtiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 26px; }
-.gtile { padding: 16px 18px; }
-.gtile .big { font: 600 28px/1.1 var(--n-font-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin-top: 6px; }
-.gtile .unit { font-size: 12px; color: var(--n-faint); margin-left: 3px; letter-spacing: 0; }
-.gtile small { display: block; color: var(--n-faint); font-size: 12px; margin-top: 4px; }
-.gtable { overflow: auto; padding: 8px 10px 12px; scrollbar-width: thin; }
-.gtable table { border-collapse: collapse; width: 100%; font-size: 12.5px; font-variant-numeric: tabular-nums; }
-.gtable th, .gtable td { padding: 8px 10px; text-align: right; white-space: nowrap; }
-.gtable th { font-weight: 600; color: var(--n-dim); font-size: 11.5px; }
-.gtable th:first-child, .gtable td:first-child { text-align: left; }
-.gtable td:first-child { max-width: 280px; overflow: hidden; text-overflow: ellipsis; }
-.gtable tbody tr + tr td { border-top: 1px solid rgba(var(--fx),.06); }
-.gtable tfoot td { border-top: 1px solid rgba(var(--fx),.16); font-weight: 600; }
-.gtable tfoot tr.rest td { font-weight: 400; color: var(--n-dim); border-top: 0; }
-.gtable .open td:not(:first-child) { color: var(--n-faint); }
-.gnote { color: var(--n-faint); font-size: 12px; margin: 10px 4px 0; }
+/* Gruppenmodus der Auswertung: links die Aufnahmen der Gruppe, Mitte Skelett und Video, rechts die Analyse */
+.eval.grp { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
+.eval.grp > .ebar { grid-column: 1 / -1; grid-row: 1; }
+.eval.grp > .stage { grid-column: 1; grid-row: 2; margin: 0 0 0 20px; }
+/* die Kartenleiste liegt links über der Simulation: deren Beschriftung und Würfel rücken daneben */
+.eval.grp .pane:not(.pip) .tag { left: 108px; }
+.eval.grp #pSim:not(.pip):not([data-avoid="bl"]) .viewnav { left: 106px; }
+.eval.grp > .drawer { grid-column: 1 / -1; grid-row: 3; }
+.eval.grp > .timeline { grid-column: 1 / -1; grid-row: 4; }
+.eval.grp #stats, .eval.grp .hint, #ev.grp:not([hidden]) ~ #swBack { display: none; }
+.flipx .ico { transform: scaleX(-1); }
+.grail { position: absolute; left: 12px; top: 12px; bottom: 12px; width: 84px; z-index: 5; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 8px; padding: 2px 0; }
+.grail::-webkit-scrollbar { display: none; }
+/* sticky oben und unten: reicht der Platz nicht, legen sich die Karten an den Rändern übereinander */
+.rc { flex: none; position: sticky; top: calc(var(--i) * 7px); bottom: calc((var(--n) - 1 - var(--i)) * 7px); height: 52px; padding: 0; border: 0; border-radius: 12px; overflow: hidden;
+  cursor: pointer; background: var(--n-surface-3); color: #fff; font: inherit; text-align: left; box-shadow: 0 6px 18px rgba(0,0,0,.3), inset 0 0 0 1px rgba(var(--fx),.08);
+  transition: scale .25s var(--n-ease), filter .25s, box-shadow .25s; }
+.rc img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .85; }
+.rc::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,0) 25%, rgba(0,0,0,.75)); }
+.rc .rn, .rc .rt { position: absolute; left: 7px; right: 7px; z-index: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rc .rn { bottom: 17px; font: 600 11.5px var(--n-font-display); }
+.rc .rt { bottom: 5px; font-size: 9.5px; opacity: .8; }
+.rc > i { position: absolute; top: 6px; right: 6px; z-index: 1; width: 6px; height: 6px; border-radius: 50%; }
+.rc:hover { box-shadow: 0 6px 18px rgba(0,0,0,.3), inset 0 0 0 1px rgba(var(--fx),.4); }
+.rc.cur { box-shadow: 0 0 0 2px var(--gx), 0 6px 18px rgba(0,0,0,.3); }
+.rc:focus-visible { outline: 2px solid var(--gx); outline-offset: 2px; }
+.gana { grid-column: 2; grid-row: 2; margin: 0 20px 0 12px; min-height: 0; border-radius: 22px; padding: 14px 18px 12px; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 10px; }
+.gah { display: flex; align-items: center; gap: 6px; }
+.gah h2 { flex: 1; min-width: 0; margin: 0; font: 600 17px var(--n-font-display); letter-spacing: -.01em; }
+.gah .acts { display: flex; gap: 2px; margin-right: -6px; }
+#gHelp.on { color: var(--n-accent); }
+.ganav { display: flex; justify-content: center; align-items: center; gap: 10px; }
+.ganav .count { min-width: 44px; text-align: center; font-size: 12.5px; color: var(--n-dim); font-variant-numeric: tabular-nums; }
+.gabody { position: relative; min-height: 0; overflow: hidden; touch-action: pan-y; }
+.gabody svg { position: absolute; inset: 0; display: block; overflow: visible; }
+.gabody svg text { font: 11px var(--n-font); fill: var(--n-faint); font-variant-numeric: tabular-nums; }
+.gabody svg .t1 { fill: var(--n-ink); }
+.gabody svg .b { font-weight: 600; }
+.gabody svg .gx { fill: var(--gx); }
+.gabody [data-k] { cursor: pointer; }
+@media (max-width: 1100px) { .eval.grp { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } .rc .rt { display: none; } .rc { height: 40px; } }
 @media (max-width: 640px) { .toprow { grid-template-columns: 1fr; } .glist { position: static; max-height: 220px; margin-top: 8px; } .groups { min-height: 0; } }
 .spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid rgba(var(--fx),.25); border-top-color: var(--n-ink); animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
@@ -505,13 +529,6 @@ html.swapping .lcard { view-transition-name: none !important; }
   <div id="gMenu" class="panel" role="menu" aria-label="Gruppen zuordnen" hidden></div>
 </section>
 
-<!-- ===== Gruppe ===== -->
-<section class="page gpage" id="gp" hidden>
-  <div class="ebar"><button class="round n-glass n-liquid" data-i="back" id="gpBack" title="Zurück zur Übersicht (Esc)"></button>
-    <div class="t"><h1 id="gpTitle"></h1><small id="gpSub"></small></div></div>
-  <div id="gpBody"></div>
-</section>
-
 <!-- ===== Auswertung ===== -->
 <section class="eval" id="ev" hidden>
   <div class="ebar">
@@ -537,6 +554,7 @@ html.swapping .lcard { view-transition-name: none !important; }
       <div class="vwarn n-glass" id="vwarn" hidden></div>
       <div class="rsz" title="Größe ziehen"></div>
     </div>
+    <nav class="grail" id="gRail" data-help="rail" aria-label="Aufnahmen der Gruppe (Pfeil hoch/runter)" hidden></nav>
     <div class="divider" id="divider" data-help="grip" title="Ziehen ändert das Verhältnis" hidden><i></i></div>
     <div class="snap" id="snap"></div>
     <div class="laymenu n-glass n-liquid panel" id="layMenu" hidden></div>
@@ -548,6 +566,12 @@ html.swapping .lcard { view-transition-name: none !important; }
       <div class="full"><div><div class="gauges" id="gauges"></div><div class="jbars" id="jbars" data-help="angles"></div></div></div>
     </aside>
   </div>
+  <!-- Gruppenmodus: links die Aufnahmen der Gruppe, rechts die Analyse -->
+  <aside class="gana n-card" id="gAna" hidden>
+    <div class="gah"><h2 id="gAnaT"></h2><span class="acts"><button class="n-ico sm" data-i="document" id="gRep" data-help="report" title="Auswertung lesen"></button><button class="n-ico sm" data-i="help" id="gHelp" data-help="help" title="Kurzhilfe: erklärt, was unter der Maus ist"></button></span></div>
+    <div class="ganav"><button class="n-ico sm" data-i="back" id="gAnaPrev" title="Vorherige Grafik" aria-label="Vorherige Grafik"></button><span class="count" id="gAnaN" role="status"></span><button class="n-ico sm flipx" data-i="back" id="gAnaNext" title="Nächste Grafik" aria-label="Nächste Grafik"></button></div>
+    <div class="gabody" id="gAnaBody"></div>
+  </aside>
   <div class="drawer n-card" id="drawer"><div class="in dock">
     <div class="jpick" data-help="jpick"><svg id="jfig" viewBox="0 0 60 112" aria-label="Gelenk wählen"></svg>
       <div class="jmeta"><span class="n-pill" id="dName"></span><div class="lg" id="dLegend"></div></div></div>
@@ -929,42 +953,331 @@ const GM = [  // name, unit, value from a summary, thresholds, decimals; lower i
   ["Vertauscht", "%", s => Math.max(...Object.values(s.flip_pct)), TH.flip, 1],
   ["Zittern", "×", s => s.acc_gemx / s.acc_xs, TH.jitter, 1],
 ];
-const sdev = a => a.length > 1 ? Math.sqrt(a.reduce((x, v) => x + (v - mean(a)) ** 2, 0) / (a.length - 1)) : NaN;
-const gvals = (list, f) => list.map(it => f(it.card.summary)).filter(v => v != null && Number.isFinite(v));
-const gp = {};
-function renderGroup({ g, list }) {
-  const done = list.filter(it => it.card), rest = items.filter(it => it.card && !list.includes(it));
-  $("#gpTitle").innerHTML = `<i class="gdot" style="--c:${gcolor(g)};display:inline-block;margin:0 12px 3px 0"></i>${esc(g.name)}`;
-  $("#gpSub").textContent = [`${list.length} Aufnahme${list.length === 1 ? "" : "n"}`, `${done.length} verglichen`, list.length > done.length ? `${list.length - done.length} offen` : ""].filter(Boolean).join(" · ");
-  const angle = s => mean(PAIRS.map(b => pair(s.angle_rmse_deg, b)));
-  const tile = (k, u, f, th, d) => {
-    const v = gvals(done, f), o = gvals(rest, f), m = mean(v);
-    return `<div class="gtile n-card"><div class="n-eyebrow">${k}</div><div class="big" style="color:${heat(m, th)}">${num(m, d)}<span class="unit">${u}</span></div>
-      <small>${v.length > 1 ? `± ${num(sdev(v), d)} ${u} · ` : ""}${o.length ? `übrige ${num(mean(o), d)} ${u}` : "keine übrigen zum Vergleich"}</small></div>`;
-  };
-  const cell = (s, [, , f, th, d]) => { const v = f(s); return `<td style="color:${heat(v, th)}">${num(v, d)}</td>`; };
-  const avg = (list, cls, label) => `<tr class="${cls}"><td>${label}</td>${GM.map(([, , f, th, d]) => { const v = gvals(list, f); return `<td title="${v.length > 1 ? "± " + num(sdev(v), d) : ""}" style="color:${cls === "rest" ? "" : heat(mean(v), th)}">${num(mean(v), d)}</td>`; }).join("")}</tr>`;
-  $("#gpBody").innerHTML = `<div class="gtiles">${tile("Haltung", "mm", s => s.pa_mpjpe_mm, TH.pa, 0)}${tile("Gelenkwinkel", "°", angle, TH.angle, 1)}
-      ${tile("Tiefe", "×", GM[6][2], TH.depth, 1)}${tile("Vertauscht", "%", GM[8][2], TH.flip, 1)}</div>
-    <div class="gtable n-card"><table><thead><tr><th>Aufnahme</th>${GM.map(([k, u]) => `<th>${k} <small>${u}</small></th>`).join("")}</tr></thead>
-      <tbody>${list.map(it => it.card ? `<tr><td title="${esc(it.name)}">${esc(it.nr || "")} ${esc(it.name)}</td>${GM.map(m => cell(it.card.summary, m)).join("")}</tr>`
-        : `<tr class="open"><td>${esc(it.nr || "")} ${esc(it.name)}</td>${GM.map(() => "<td>offen</td>").join("")}</tr>`).join("")}</tbody>
-      <tfoot>${avg(done, "mean", "Mittel der Gruppe")}${rest.length ? avg(rest, "rest", `Übrige (${rest.length})`) : ""}</tfoot></table></div>
-    <p class="gnote">Mittelwerte über die verglichenen Aufnahmen; „Übrige“ sind alle anderen verglichenen Aufnahmen. Niedriger ist überall besser.</p>`;
+const okv = v => v != null && Number.isFinite(v);
+const med = a => { a = a.filter(okv).sort((x, y) => x - y); const n = a.length; return n ? (n % 2 ? a[n >> 1] : (a[n / 2 - 1] + a[n / 2]) / 2) : NaN; };
+const gvals = (list, f) => list.map(it => f(it.card.summary)).filter(okv);
+const restOf = G => items.filter(it => it.card && !G.list.includes(it));
+const loaded = G => G.list.filter(it => it.rec?.series);
+const PALE = 0.42;  // traffic-light colours, paler: the analysis card carries many marks at once
+
+// Je Bild der Aufnahme: Blickrichtung zur Kamera, Körperlage, Fehler des Beckens entlang/quer zur Sicht
+const POSES = ["Aufrecht", "Gebeugt", "Liegend", "Kopfüber", "In der Luft"];
+function frameInfo(r) {
+  if (r._fi) return r._fi;
+  const s = r.series, xs = r.xs, c = s.cam, P = (f, j) => [f[3 * j], f[3 * j + 1], f[3 * j + 2]];
+  const low = xs.map(f => { let m = Infinity; for (let j = 2; j < f.length; j += 3) m = Math.min(m, f[j]); return m; });
+  const ground = [...low].sort((a, b) => a - b)[Math.floor(low.length * 0.05)];  // floor height of this recording
+  const vd = c ? Math.hypot(c.dir[0], c.dir[1]) || 1 : 1, face = [], pose = [], depth = [], side = [];
+  s.gemx.forEach((g, i) => {
+    const k = s.k0 + i, f = xs[k], pel = P(f, JI.pelvis), nk = P(f, JI.neck);
+    const t = [nk[0] - pel[0], nk[1] - pel[1], nk[2] - pel[2]], tilt = Math.acos(clamp(t[2] / (Math.hypot(...t) || 1), -1, 1)) * 180 / Math.PI;
+    pose.push(low[k] > ground + 0.15 ? 4 : tilt < 30 ? 0 : tilt < 60 ? 1 : tilt < 120 ? 2 : 3);
+    if (!c) return;
+    // forward = (right -> left) x up, from hips and shoulders; 0° = the person faces the camera
+    const rl = [0, 1].map(a => f[3 * JI.l_hip + a] - f[3 * JI.r_hip + a] + f[3 * JI.l_shoulder + a] - f[3 * JI.r_shoulder + a]);
+    const fw = [rl[1], -rl[0]], tc = [c.pos[0] - pel[0], c.pos[1] - pel[1]];
+    face.push(Math.atan2(fw[0] * tc[1] - fw[1] * tc[0], fw[0] * tc[0] + fw[1] * tc[1]) * 180 / Math.PI);
+    const e = [0, 1].map(a => 1000 * (g[3 * JI.pelvis + a] - f[3 * JI.pelvis + a])), v = [c.dir[0] / vd, c.dir[1] / vd];
+    depth.push(e[0] * v[0] + e[1] * v[1]); side.push(e[0] * v[1] - e[1] * v[0]);
+  });
+  return r._fi = { face: c ? face : null, pose, depth, side, pa: s.pa_mm };
 }
-function openGroup(id, from) {
-  const S = stacks().find(s => s.g.id === id);
-  if (!S?.list.length) return;
-  gp.id = id; gp.scrollY = scrollY; closeGMenu();
-  pageSwap([$(".pile", from), $(".slabel span", from)], () => { renderGroup(S); $("#ov").hidden = true; $("#gp").hidden = false; scrollTo(0, 0); }, () => [$("#gpBody .gtiles"), $("#gpTitle")]);
+
+// ---- Analysekarte: sechs Grafiken zum Durchklicken ----
+const tx = (x, y, s, c = "", a = "start") => `<text x="${(+x).toFixed(1)}" y="${(+y).toFixed(1)}"${c ? ` class="${c}"` : ""} text-anchor="${a}">${s}</text>`;
+const pct = r => (r >= 1 ? "+" : "−") + num(Math.abs(r - 1) * 100) + " %";
+const note = (w, h, s) => tx(w / 2, h / 2, s, "", "middle");
+const nameOf = it => esc((it.nr ? it.nr + " · " : "") + it.name);
+const arcPath = (cx, cy, r, a0, a1) => { const p = a => `${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a)).toFixed(1)}`; return `M${p(a0)}A${r} ${r} 0 ${a1 - a0 > Math.PI ? 1 : 0} 1 ${p(a1)}`; };
+
+function anaProfile(G, w, h) {
+  const rest = restOf(G);
+  if (!rest.length) return note(w, h, "Keine übrigen Aufnahmen zum Vergleich.");
+  const rows = GM.map(([k, u, f, , d]) => { const a = med(gvals(G.list, f)), b = med(gvals(rest, f)); return { k, u, d, a, b, r: a / b }; })
+    .filter(x => okv(x.r) && x.r > 0).sort((p, q) => Math.abs(Math.log(q.r)) - Math.abs(Math.log(p.r)));
+  const LW = Math.round(w * 0.6), half = (LW - 86 - 60) / 2, cx = 86 + half, top = 24, rh = Math.min(30, (h - top - 22) / rows.length);
+  const mx = Math.max(1, ...rows.map(x => Math.abs(Math.log2(x.r))));
+  let s = tx(0, 11, `Median der Gruppe gegen die übrigen ${rest.length} Aufnahmen, sortiert nach Abstand`)
+    + `<line x1="${cx}" x2="${cx}" y1="${top}" y2="${top + rows.length * rh}" stroke="${fx(.16)}"/>`;
+  rows.forEach((x, i) => {
+    const y = top + i * rh, bh = Math.min(14, rh - 8), len = Math.log2(x.r) / mx * half, worse = x.r > 1, small = Math.abs(x.r - 1) < 0.05;
+    const col = small ? fx(.3) : css(worse ? "--n-low" : "--n-ok");
+    s += `<g><title>${x.k}: Gruppe ${num(x.a, x.d)} ${x.u} · übrige ${num(x.b, x.d)} ${x.u}</title>${tx(0, y + rh / 2 + 4, x.k, "t1")}`
+      + `<rect x="${Math.min(cx, cx + len)}" y="${y + (rh - bh) / 2}" width="${Math.max(1, Math.abs(len))}" height="${bh}" rx="2" fill="${col}" fill-opacity="${PALE}"/>`
+      + tx(worse ? cx + Math.max(len, 0) + 6 : cx + Math.min(len, 0) - 6, y + rh / 2 + 4, pct(x.r), "t1", worse ? "start" : "end") + "</g>";
+  });
+  s += tx(cx - 6, top + rows.length * rh + 14, "besser", "", "end") + tx(cx + 6, top + rows.length * rh + 14, "schlechter");
+  // Körperkarte: welche Gelenke in dieser Gruppe weiter von Xsens weg liegen als bei den übrigen
+  const x0 = LW + 18, RW = w - x0, sc = Math.min(RW / 60, (h - 84) / 104), ox = x0 + (RW - 60 * sc) / 2, oy = top - 6 * sc;
+  const jr = Object.fromEntries(J.map(n => [n, med(gvals(G.list, sm => sm.joint_mm?.[n])) / med(gvals(rest, sm => sm.joint_mm?.[n]))]));
+  const p = j => [ox + FIG[J[j]][0] * sc, oy + FIG[J[j]][1] * sc];
+  s += BONES.map(([a, b]) => `<line x1="${p(a)[0]}" y1="${p(a)[1]}" x2="${p(b)[0]}" y2="${p(b)[1]}" stroke="${fx(.16)}" stroke-width="2" stroke-linecap="round"/>`).join("");
+  s += J.map((n, j) => { const r = jr[n], [x, y] = p(j), col = !okv(r) ? fx(.3) : r >= 1.15 ? css("--n-low") : r >= 1.05 ? css("--n-warn") : r <= 0.95 ? css("--n-ok") : fx(.35);
+    return `<circle cx="${x}" cy="${y}" r="${4 + clamp((r || 1) - 1, 0, 0.6) * 14}" fill="${col}" fill-opacity=".8"><title>${jointName(n)}: ${okv(r) ? pct(r) : "–"} gegen die übrigen</title></circle>`; }).join("");
+  const worst = J.filter(n => okv(jr[n])).sort((a, b) => jr[b] - jr[a])[0], by = oy + 104 * sc;
+  s += tx(ox - 4, by, "R", "", "end") + tx(ox + 60 * sc + 4, by, "L");
+  if (worst && jr[worst] > 1) s += tx(x0 + RW / 2, by + 20, `${jointName(worst)} ${pct(jr[worst])}`, "t1 b", "middle") + tx(x0 + RW / 2, by + 34, "am weitesten über den übrigen", "", "middle");
+  else if (worst) s += tx(x0 + RW / 2, by + 20, "Kein Gelenk schlechter", "t1 b", "middle") + tx(x0 + RW / 2, by + 34, "als bei den übrigen Aufnahmen", "", "middle");
+  const views = Object.entries(G.list.reduce((o, it) => { const v = it.view || "ohne Angabe"; o[v] = (o[v] || 0) + 1; return o; }, {})).map(([v, n]) => `${v} ${n}`).join(" · ");
+  return s + tx(x0 + RW / 2, h - 4, "Kamera: " + views, "", "middle");
 }
-function closeGroup() {
-  if ($("#gp").hidden) return;
-  const parts = () => { const el = $(`#lib .stack[data-g="${CSS.escape(gp.id)}"]`); return el ? [$(".pile", el), $(".slabel span", el)] : []; };
-  pageSwap([$("#gpBody .gtiles"), $("#gpTitle")], () => { $("#gp").hidden = true; $("#ov").hidden = false; scrollTo(0, gp.scrollY || 0); }, parts);
+
+function anaSpread(G, w, h) {
+  const rest = restOf(G), col = gcolor(G.g), L = 86, R = w - 70, top = 22, rh = (h - top) / GM.length;
+  let s = tx(0, 11, "Jeder Punkt eine Aufnahme: farbig die Gruppe, grau die übrigen, umrandet die aktuelle · Striche = Median");
+  GM.forEach(([k, u, f, , d], i) => {
+    const y = top + i * rh + rh / 2, gv = G.list.map(it => f(it.card.summary)), rv = gvals(rest, f), all = gv.concat(rv).filter(okv);
+    s += tx(0, y + 4, k, "t1") + `<line x1="${L}" x2="${R}" y1="${y}" y2="${y}" stroke="${fx(.08)}"/>`;
+    if (!all.length) return;
+    let lo = Math.min(...all), hi = Math.max(...all); const pad = (hi - lo) * 0.06 || Math.abs(hi) * 0.1 || 1; lo -= pad; hi += pad;
+    const X = v => L + (v - lo) / (hi - lo) * (R - L), gm = med(gv), rm = med(rv);
+    rv.forEach(v => s += `<circle cx="${X(v)}" cy="${y}" r="3.2" fill="${fx(.26)}"/>`);
+    if (okv(rm)) s += `<line x1="${X(rm)}" x2="${X(rm)}" y1="${y - 8}" y2="${y + 8}" stroke="${fx(.45)}" stroke-dasharray="2 2"/>`;
+    if (okv(gm)) s += `<line x1="${X(gm)}" x2="${X(gm)}" y1="${y - 9}" y2="${y + 9}" stroke="${col}" stroke-width="1.5"/>`;
+    const dot = kk => { const v = gv[kk], cur = kk === G.k; if (!okv(v)) return "";
+      return `<circle data-k="${kk}" cx="${X(v)}" cy="${y}" r="${cur ? 6 : 4.5}" fill="${col}" fill-opacity="${cur ? 1 : .8}"${cur ? ` stroke="${css("--n-ink")}" stroke-width="2"` : ""}><title>${nameOf(G.list[kk])}: ${num(v, d)} ${u}</title></circle>`; };
+    s += gv.map((_, kk) => kk === G.k ? "" : dot(kk)).join("") + dot(G.k);
+    s += tx(w, y + 4, `${num(gm, d)} ${u}`, "t1", "end");
+  });
+  return s;
 }
-$("#gpBack").onclick = closeGroup;
-document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#gp").hidden) closeGroup(); });
+
+function anaState(G, w, h) {
+  const L = loaded(G); if (!L.length) return note(w, h, "Aufnahmen werden geladen …");
+  const cur = G.list[G.k], z = () => [0, 0], sec = Array.from({ length: 8 }, z), cs = Array.from({ length: 8 }, z), po = POSES.map(z), cp = POSES.map(z);
+  let n = 0, face = false;
+  for (const it of L) {
+    const fi = frameInfo(it.rec), me = it === cur;
+    fi.pa.forEach((v, i) => {
+      n++; const p = fi.pose[i]; po[p][0] += v; po[p][1]++; if (me) { cp[p][0] += v; cp[p][1]++; }
+      if (!fi.face) return;
+      face = true; const b = ((Math.round(fi.face[i] / 45) % 8) + 8) % 8; sec[b][0] += v; sec[b][1]++; if (me) { cs[b][0] += v; cs[b][1]++; }
+    });
+  }
+  const avg = ([a, c]) => c ? a / c : null, D = Math.min(h - 30, w * 0.44), cx = D / 2, cy = 26 + D / 2 - 8, R1 = D * 0.15, Rm = D * 0.36;
+  let s = tx(0, 11, `Haltungsfehler je Bild, alle ${L.length} Aufnahmen der Gruppe zusammen · Strich = aktuelle Aufnahme`);
+  if (face) {
+    const mx = Math.max(...sec.map(avg).filter(okv)), gap = 0.014, rad = b => Math.PI / 2 + b * Math.PI / 4;
+    sec.forEach((c, b) => {
+      const v = avg(c), a0 = rad(b) - Math.PI / 8 + gap, a1 = rad(b) + Math.PI / 8 - gap, thin = c[1] < n * 0.02;
+      const R2 = thin || !okv(v) ? R1 + 5 : R1 + 4 + v / mx * (Rm - R1 - 4), q = (a, r) => `${(cx + r * Math.cos(a)).toFixed(1)} ${(cy + r * Math.sin(a)).toFixed(1)}`;
+      s += `<path d="M${q(a0, R1)}L${q(a0, R2)}A${R2} ${R2} 0 0 1 ${q(a1, R2)}L${q(a1, R1)}A${R1} ${R1} 0 0 0 ${q(a0, R1)}Z" fill="${thin || !okv(v) ? fx(.07) : heat(v, TH.paFrame)}" fill-opacity="${thin ? 1 : PALE}"><title>${["zugewandt", "schräg", "seitlich", "schräg abgewandt", "abgewandt", "schräg abgewandt", "seitlich", "schräg"][b]}: ${okv(v) ? num(v) + " mm" : "–"} · ${num(c[1] / n * 100)} % der Bilder</title></path>`;
+      const u = avg(cs[b]);
+      if (okv(u) && cs[b][1] >= 3) { const r = Math.min(Rm + 6, R1 + 4 + u / mx * (Rm - R1 - 4)); s += `<path d="${arcPath(cx, cy, r, a0 + 0.04, a1 - 0.04)}" fill="none" stroke="${css("--n-ink")}" stroke-width="1.6"/>`; }
+    });
+    s += `<circle cx="${cx}" cy="${cy}" r="3.5" fill="${fx(.7)}"/><line x1="${cx}" y1="${cy + 5}" x2="${cx}" y2="${cy + 13}" stroke="${fx(.7)}" stroke-width="1.4"/>`
+      + `<line x1="${cx}" y1="${cy + R1}" x2="${cx}" y2="${cy + Rm + 12}" stroke="${fx(.14)}" stroke-dasharray="3 3"/><rect x="${cx - 7}" y="${cy + Rm + 12}" width="14" height="10" rx="2" fill="${fx(.45)}"/>`
+      + tx(cx, cy - Rm - 6, `abgewandt · ${num(avg(sec[4]))} mm`, "t1", "middle") + tx(cx + 12, cy + Rm + 21, `zugewandt · ${num(avg(sec[0]))} mm`, "t1")
+      + tx(0, cy - Rm * 0.6, "seitlich") + tx(D, cy - Rm * 0.6, "seitlich", "", "end") + tx(cx, h - 2, "von oben, Kamera unten", "", "middle");
+  } else s += tx(cx, cy, "keine Kameraposition", "", "middle");
+  const x0 = D + 26, bx = x0 + 88, bw = w - bx - 92, rh = Math.min(46, (h - 26) / POSES.length), mx = Math.max(...po.map(avg).filter(okv), 1);
+  POSES.forEach((nm, i) => {
+    const y = 26 + i * rh, v = avg(po[i]), u = avg(cp[i]), share = po[i][1] / n;
+    s += tx(x0, y + 12, nm, "t1") + `<rect x="${bx}" y="${y + 1}" width="${bw}" height="14" rx="2" fill="${fx(.05)}"/>`;
+    if (okv(v)) s += `<rect x="${bx}" y="${y + 1}" width="${Math.max(1, v / mx * bw)}" height="14" rx="2" fill="${heat(v, TH.paFrame)}" fill-opacity="${PALE}"/>` + tx(bx + bw + 6, y + 12, num(v) + " mm", "t1");
+    else s += tx(bx + bw + 6, y + 12, "–");
+    if (okv(u)) s += `<line x1="${bx + Math.min(1, u / mx) * bw}" x2="${bx + Math.min(1, u / mx) * bw}" y1="${y - 2}" y2="${y + 18}" stroke="${css("--n-ink")}" stroke-width="1.6"><title>aktuelle Aufnahme ${num(u)} mm</title></line>`;
+    s += `<rect x="${bx}" y="${y + 20}" width="${bw}" height="2" rx="1" fill="${fx(.08)}"/><rect x="${bx}" y="${y + 20}" width="${share * bw}" height="2" rx="1" fill="${fx(.4)}"/>` + tx(bx + bw + 6, y + 25, num(share * 100) + " % der Bilder");
+  });
+  return s;
+}
+
+const KIND = [  // name, unit, value, thresholds, decimals, what the thresholds apply to, axis range (default 0 … beyond red)
+  ["Tiefe", "× Bildebene", sm => sm.path_depth_mm ? sm.path_depth_mm / sm.path_plane_mm : null, TH.depth, 1, v => v],
+  ["Vertauscht", "% der Bilder", sm => Math.max(...Object.values(sm.flip_pct)), TH.flip, 1, v => v],
+  ["Größe", "× Xsens", sm => sm.scale, [0.1, 0.25], 2, v => Math.abs(1 - v), [0.4, 1.6]],
+  ["Zittern", "× Xsens", sm => sm.acc_gemx / sm.acc_xs, TH.jitter, 1, v => v],
+  ["Knochenlänge", "% Schwankung", sm => sm.bones ? 100 * mean(Object.values(sm.bones).map(b => b.cv)) : null, [5, 10], 1, v => v],
+];
+function anaKind(G, w, h) {
+  const rest = restOf(G), cur = G.list[G.k], D = Math.min(h - 30, w * 0.42), cx = D / 2, top = 22;
+  let s = tx(0, 11, "Punkte: Aufnahmen der Gruppe, umrandet die aktuelle · gestrichelt: Median der übrigen · Zahl: Median der Gruppe");
+  // Fehlerwolke von oben: wohin das GemX-Becken gegenüber Xsens verrutscht, Kamera unten
+  const L = loaded(G).filter(it => it.rec.series.cam), pts = [];
+  L.forEach(it => { const fi = frameInfo(it.rec), st = Math.max(1, Math.floor(fi.depth.length / 140)); for (let i = 0; i < fi.depth.length; i += st) pts.push([fi.side[i], fi.depth[i], it === cur]); });
+  if (pts.length) {
+    const cy = top + D * 0.42, camY = top + D - 4, lim = [...pts.map(p => Math.max(Math.abs(p[0]), Math.abs(p[1])))].sort((a, b) => a - b)[Math.floor(pts.length * 0.95)] || 1;
+    const sc = D * 0.36 / lim, sd = k => { const m = mean(pts.map(p => p[k])); return [m, Math.sqrt(mean(pts.map(p => (p[k] - m) ** 2)))]; }, [ms, ss] = sd(0), [md, sdd] = sd(1);
+    s += `<path d="M${cx} ${camY}L${cx - D * 0.46} ${top + 4}M${cx} ${camY}L${cx + D * 0.46} ${top + 4}" stroke="${fx(.1)}" fill="none"/><line x1="${cx}" x2="${cx}" y1="${camY}" y2="${top + 4}" stroke="${fx(.14)}" stroke-dasharray="3 3"/>`
+      + `<ellipse cx="${cx + ms * sc}" cy="${cy - md * sc}" rx="${Math.max(3, 2 * ss * sc)}" ry="${Math.max(3, 2 * sdd * sc)}" fill="${css("--n-low")}" fill-opacity=".14" stroke="${css("--n-low")}" stroke-opacity=".5"/>`
+      + pts.filter(p => !p[2]).map(p => `<circle cx="${(cx + clamp(p[0] * sc, -D / 2, D / 2)).toFixed(1)}" cy="${(cy - clamp(p[1] * sc, -D / 2, D / 2)).toFixed(1)}" r="1.5" fill="${fx(.3)}"/>`).join("")
+      + pts.filter(p => p[2]).map(p => `<circle cx="${(cx + clamp(p[0] * sc, -D / 2, D / 2)).toFixed(1)}" cy="${(cy - clamp(p[1] * sc, -D / 2, D / 2)).toFixed(1)}" r="1.7" fill="${css("--gx")}" fill-opacity=".8"/>`).join("")
+      + `<circle cx="${cx}" cy="${cy}" r="3" fill="${css("--n-ink")}"/><rect x="${cx - 7}" y="${camY - 2}" width="14" height="10" rx="2" fill="${fx(.45)}"/>`
+      + tx(D, top + 16, `Tiefe ${num(med(gvals(G.list, sm => sm.path_depth_mm)))} mm`, "t1 b", "end") + tx(D, top + 29, "entlang der Sicht", "", "end")
+      + tx(D, cy + D * 0.3, `Bildebene ${num(med(gvals(G.list, sm => sm.path_plane_mm)))} mm`, "t1 b", "end") + tx(D, cy + D * 0.3 + 13, "quer zur Sicht", "", "end")
+      + tx(cx, h - 2, "Becken von oben, blau = aktuelle Aufnahme", "", "middle");
+  } else s += tx(cx, top + D / 2, "keine Kameraposition", "", "middle");
+  // je Fehlerart ein Diagramm: Bereiche grün/gelb/rot, Punkte = Aufnahmen der Gruppe, gestrichelt = Median der übrigen
+  const split = h >= 300, rh = Math.min(66, (h - top - (split ? 56 : 4)) / KIND.length), small = rh < 46, col = gcolor(G.g);
+  const x0 = D + 26, bx0 = small ? x0 + 92 : x0, tw = (small ? w - 112 : w - 6) - bx0;  // low card: name, bar and value in one line
+  KIND.forEach(([k, u, f, th, d, dev, dom], i) => {
+    const y = top + i * rh, gv = G.list.map(it => f(it.card.summary)), gm = med(gv), rm = med(gvals(rest, f)), cv = gv[G.k];
+    const [lo, hi] = dom || [0, Math.max(th[1] * 1.6, ...gv.filter(okv), okv(rm) ? rm : 0) * 1.05];
+    const X = v => bx0 + clamp((v - lo) / (hi - lo), 0, 1) * tw, by = small ? y + rh / 2 : y + 27, N = 90, x0b = bx0;
+    s += tx(x0, small ? by + 4 : y + 12, k, "t1 b") + tx(w - 6, small ? by + 4 : y + 12, okv(gm) ? `${num(gm, d)} ${u}` : "–", "t1", "end");
+    let run = null;  // zones: one bar per run of the same colour, 1 px apart
+    for (let q = 0; q <= N; q++) {
+      const x = x0b + q / N * tw, c = q < N ? heat(dev(lo + (hi - lo) * (q + 0.5) / N), th) : null;
+      if (run && c !== run.c) { s += `<rect x="${run.x.toFixed(1)}" y="${by - 3}" width="${Math.max(1, x - run.x - (c ? 1 : 0)).toFixed(1)}" height="6" rx="1" fill="${run.c}" fill-opacity=".32"/>`; run = null; }
+      if (c && !run) run = { x, c };
+    }
+    if (okv(rm)) s += `<line x1="${X(rm)}" x2="${X(rm)}" y1="${by - 9}" y2="${by + 9}" stroke="${fx(.55)}" stroke-dasharray="2 2"><title>Median der übrigen: ${num(rm, d)} ${u}</title></line>`;
+    gv.forEach((v, kk) => { if (okv(v) && kk !== G.k) s += `<circle data-k="${kk}" cx="${X(v)}" cy="${by}" r="3.6" fill="${col}" fill-opacity=".85"><title>${nameOf(G.list[kk])}: ${num(v, d)} ${u}</title></circle>`; });
+    if (okv(cv)) s += `<circle cx="${X(cv)}" cy="${by}" r="5" fill="${col}" stroke="${css("--n-ink")}" stroke-width="2"><title>${nameOf(cur)}: ${num(cv, d)} ${u}</title></circle>`;
+    if (!small) s += tx(x0, by + 20, `aktuell ${okv(cv) ? num(cv, d) : "–"} · übrige ${okv(rm) ? num(rm, d) : "–"}`);
+  });
+  const a = med(gvals(G.list, sm => sm.pa_mpjpe_fix_mm != null ? sm.pa_mpjpe_mm - sm.pa_mpjpe_fix_mm : null)), b = med(gvals(G.list, sm => sm.pa_mpjpe_fix_mm));
+  if (split && okv(a) && okv(b)) {
+    const y = h - 40, bw = w - x0, wa = Math.max(2, a / (a + b) * bw);
+    s += tx(x0, y, "Haltungsfehler zerlegt") + `<rect x="${x0}" y="${y + 6}" width="${wa - 1}" height="11" rx="2" fill="${fx(.2)}"/><rect x="${x0 + wa}" y="${y + 6}" width="${bw - wa}" height="11" rx="2" fill="${heat(b, TH.pa)}" fill-opacity="${PALE}"/>`
+      + tx(x0, y + 31, `Versatz (Definition) ${num(a)} mm`) + tx(w, y + 31, `echter Fehler ${num(b)} mm`, "t1", "end");
+  }
+  return s;
+}
+
+function anaAngles(G, w, h) {
+  const it = G.list[G.k], r = it.rec, s = r?.series; if (!s) return note(w, h, "Aufnahme wird geladen …");
+  const cols = h >= 340 ? 2 : 4, cw = w / cols, rH = (h - 40) / (4 / cols), R = Math.max(18, Math.min(cw * 0.3, rH - 110)), L = loaded(G);  // two by two, one row when low
+  const ext = a => { let lo = Infinity, hi = -Infinity; for (const v of a) { if (v < lo) lo = v; if (v > hi) hi = v; } return [lo, hi]; };
+  const romErr = (rr, an) => { const se = rr.series, ax = ext(rr.angles_xs[an].slice(se.k0, se.k0 + se.gemx.length)), ag = ext(se.angles_gemx[an]); return (ag[1] - ag[0]) / ((ax[1] - ax[0]) || 1) - 1; };
+  let out = tx(0, 11, `${nameOf(it)}: Bereich, den Xsens und GemX während der Aufnahme sehen · darunter die Gruppe`);
+  PAIRS.forEach((b, i) => {
+    const sd = r.summary.angle_rmse_deg[b + " R"] >= r.summary.angle_rmse_deg[b + " L"] ? "R" : "L", an = b + " " + sd, cx = (i % cols) * cw + cw / 2, ty = 20 + Math.floor(i / cols) * rH, cy = ty + 36 + R;
+    if (!r.angles_xs[an] || !s.angles_gemx[an]) return;
+    const rx = ext(r.angles_xs[an].slice(s.k0, s.k0 + s.gemx.length)), rg = ext(s.angles_gemx[an]), rom = romErr(r, an), bias = r.summary.angle_bias_deg?.[an];
+    const A = v => Math.PI * (1 + clamp(v, 0, 180) / 180), arc = (q, rr) => arcPath(cx, cy, rr, A(q[0]), A(q[1]));
+    const gRom = med(L.flatMap(x => [x.rec.angles_xs[b + " R"] ? romErr(x.rec, b + " R") : null, x.rec.angles_xs[b + " L"] ? romErr(x.rec, b + " L") : null]));
+    const gBias = med(gvals(G.list, sm => pair(sm.angle_bias_deg, b)));
+    const pk = A(rx[1]), tick = (r0, r1) => `${cx + r0 * Math.cos(pk)} ${cy + r0 * Math.sin(pk)}L${cx + r1 * Math.cos(pk)} ${cy + r1 * Math.sin(pk)}`;
+    out += tx(cx, ty + 12, `${b} ${sd}`, "t1 b", "middle")
+      + `<path d="${arcPath(cx, cy, R, Math.PI, 2 * Math.PI)}" fill="none" stroke="${fx(.07)}"/>`
+      + `<path d="${arc(rx, R)}" fill="none" stroke="${fx(.22)}" stroke-width="7"/>`
+      + `<path d="${arc(rg, R + 11)}" fill="none" stroke="${css("--gx")}" stroke-width="3" stroke-linecap="round"/>`
+      + `<path d="M${tick(R - 12, R + 18)}" stroke="${css("--n-ink")}" stroke-width="1" stroke-dasharray="2 2"/>`
+      + `<circle cx="${cx}" cy="${cy}" r="3" fill="${css("--n-ink")}"/>`
+      + tx(cx - R, cy + 14, "0°", "", "middle") + tx(cx + R, cy + 14, "180°", "", "middle")
+      + `<text x="${cx}" y="${cy + 36}" text-anchor="middle" class="t1 b" style="fill:${Math.abs(rom) > 0.1 ? heat(Math.abs(rom) * 100, [10, 25]) : "var(--n-ink)"}">Weite ${pct(rom + 1)}</text>`
+      + tx(cx, cy + 51, `Bias ${sg(bias, 0)}°`, "t1", "middle")
+      + tx(cx, cy + 69, `Gruppe ${okv(gRom) ? pct(gRom + 1) : "–"} · ${sg(gBias, 0)}°`, "", "middle");
+  });
+  const y = h - 6;
+  return out + `<rect x="0" y="${y - 8}" width="14" height="6" rx="1" fill="${fx(.22)}"/>` + tx(20, y, "Xsens-Bereich")
+    + `<rect x="120" y="${y - 7}" width="14" height="3" rx="1" fill="${css("--gx")}"/>` + tx(140, y, "GemX-Bereich")
+    + `<line x1="240" x2="254" y1="${y - 5}" y2="${y - 5}" stroke="${css("--n-ink")}" stroke-dasharray="2 2"/>` + tx(260, y, "Xsens-Spitze");
+}
+
+function anaGaps(G, w, h) {
+  const n = G.list.length, top = 22, rh = Math.min(42, (h - top) / n), L = 44, R = w - 150, bins = Math.max(20, Math.floor((R - L) / 4.5)), bw = (R - L) / bins, bad = TH.paFrame[1];
+  let s = tx(0, 11, `Jede Aufnahme ein Streifen, jedes Feld ein Abschnitt · kräftig = Haltungsfehler über ${bad} mm`);
+  G.list.forEach((it, k) => {
+    const y = top + k * rh, cur = k === G.k, pa = it.rec?.series?.pa_mm, src = pa || it.card.spark;
+    const vals = Array.from({ length: bins }, (_, b) => { const a = Math.floor(b * src.length / bins), e = Math.max(a + 1, Math.floor((b + 1) * src.length / bins)); let m = 0; for (let i = a; i < e; i++) m = Math.max(m, src[i]); return m; });
+    s += `<g data-k="${k}"><title>${nameOf(it)}</title><rect x="-6" y="${y}" width="${w + 6}" height="${rh - 2}" rx="7" fill="${cur ? fx(.07) : "transparent"}"/>`
+      + tx(0, y + rh / 2 + 3, esc(it.nr || k + 1), cur ? "gx b" : "t1")
+      + vals.map((v, b) => `<rect x="${(L + b * bw).toFixed(1)}" y="${y + 4}" width="${Math.max(1, bw - 1).toFixed(1)}" height="${rh - 10}" rx="1" fill="${heat(v, TH.paFrame)}" fill-opacity="${v <= TH.paFrame[0] ? .2 : .6}"/>`).join("");
+    if (pa) {
+      let run = 0, best = 0, nb = 0; for (const v of pa) { if (v > bad) { nb++; run++; best = Math.max(best, run); } else run = 0; }
+      const p = `${num(nb / pa.length * 100)} % schlecht`, l = best ? `längste Lücke ${num(best / FPS, 1)} s` : "keine Lücke";
+      s += rh >= 26 ? tx(R + 12, y + rh / 2 - 2, p, "t1") + tx(R + 12, y + rh / 2 + 10, l) : tx(R + 12, y + rh / 2 + 3, `${p} · ${l}`, "t1");
+    } else s += tx(R + 12, y + rh / 2 + 3, "lädt …");
+    s += "</g>";
+  });
+  return s;
+}
+
+const ANA = [["Steckbrief", "Steckbrief", anaProfile], ["Streuung", "Streuung", anaSpread], ["Bewegungszustand", "Zustand", anaState],
+  ["Fehlerart", "Fehlerart", anaKind], ["Gelenkwinkel", "Winkel", anaAngles], ["Ausfälle", "Ausfälle", anaGaps]];
+$("#gAnaPrev").onclick = () => goAna(ev.grp.ana - 1, -1); $("#gAnaNext").onclick = () => goAna(ev.grp.ana + 1, 1);
+$("#gRep").onclick = () => showReport(true); $("#gHelp").onclick = () => setHelp(!helpOn);
+// Wischen durch die Grafiken: mit der Maus ziehen oder waagerecht scrollen (Trackpad)
+const gb = $("#gAnaBody");
+let gsw = null, gswDone = 0, gwAcc = 0, gwT = 0;
+gb.addEventListener("pointerdown", e => { if (e.button === 0 && ev.grp) gsw = { x: e.clientX, y: e.clientY, id: e.pointerId, on: false }; });
+gb.addEventListener("pointermove", e => {
+  if (!gsw || e.pointerId !== gsw.id) return;
+  const dx = e.clientX - gsw.x, dy = e.clientY - gsw.y, svg = gb.firstElementChild;
+  if (!gsw.on) {
+    if (Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)) { gsw = null; return; }
+    if (Math.abs(dx) < 8) return;
+    gsw.on = true; gb.setPointerCapture(e.pointerId);
+  }
+  if (svg) { svg.style.translate = `${dx * 0.6}px 0`; svg.style.opacity = 1 - Math.min(0.6, Math.abs(dx) / 400); }
+});
+function gswEnd(e) {
+  const s = gsw; gsw = null; if (!s?.on) return;
+  gswDone = performance.now();
+  const dx = e.clientX - s.x, svg = gb.firstElementChild;
+  if (Math.abs(dx) > 60) return goAna(ev.grp.ana + (dx < 0 ? 1 : -1), dx < 0 ? 1 : -1);
+  if (!svg) return;
+  const from = { translate: svg.style.translate, opacity: svg.style.opacity };
+  svg.style.translate = svg.style.opacity = "";
+  if (!calm()) svg.animate([from, { translate: "0 0", opacity: 1 }], { duration: 220, easing: "ease-out" });
+}
+gb.addEventListener("pointerup", gswEnd); gb.addEventListener("pointercancel", gswEnd);
+gb.addEventListener("click", e => { if (performance.now() - gswDone < 80) e.stopPropagation(); }, true);  // no click after a swipe
+gb.addEventListener("wheel", e => {
+  if (!ev.grp || Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+  e.preventDefault();
+  const now = performance.now(); if (now - gwT < 600) { gwAcc = 0; return; }  // the trackpad's coasting would page on
+  gwAcc += e.deltaX;
+  if (Math.abs(gwAcc) > 80) { const d = Math.sign(gwAcc); gwT = now; gwAcc = 0; goAna(ev.grp.ana + d, d); }
+}, { passive: false });
+function goAna(i, dir) {
+  const G = ev.grp; if (!G) return;
+  i = (i + ANA.length) % ANA.length; if (i === G.ana) return;
+  dir = dir ?? Math.sign(i - G.ana); G.ana = i; store.set("gemx.ana", i); renderAna(dir);
+}
+function renderAna(dir = 0) {
+  const G = ev.grp, box = $("#gAnaBody"); if (!G || $("#ev").hidden) return;
+  const w = box.clientWidth, h = box.clientHeight, [t, , fn] = ANA[G.ana];
+  $("#gAnaT").textContent = t; $("#gAnaN").textContent = `${G.ana + 1} / ${ANA.length}`; box.dataset.help = "ana" + G.ana;
+  if (!w || !h) return;
+  box.innerHTML = `<svg width="${w}" height="${h}">${fn(G, w, h)}</svg>`;
+  $$("[data-k]", box).forEach(el => el.onclick = () => gSwitch(+el.dataset.k));
+  if (dir && !calm()) box.firstChild.animate([{ opacity: 0, translate: `${dir * 24}px 0` }, { opacity: 1, translate: "0 0" }], { duration: 340, easing: "cubic-bezier(.22, 1, .36, 1)" });
+}
+new ResizeObserver(() => renderAna()).observe($("#gAnaBody"));
+
+// ---- Kartenleiste links: die Aufnahmen der Gruppe, bei wenig Platz übereinander gestapelt ----
+function renderRail() {
+  const G = ev.grp, n = G.list.length;
+  $("#gRail").innerHTML = G.list.map((it, k) => { const pic = poster(it), pa = it.card.summary.pa_mpjpe_mm;
+    return `<button class="rc${k === G.k ? " cur" : ""}" data-k="${k}" style="--i:${k};--n:${n}" title="${nameOf(it)} · Haltung ${num(pa)} mm">${pic ? `<img src="${pic}" alt="">` : ""}`
+      + `<span class="rn">${esc(it.nr || "–")}</span><span class="rt">${esc(it.name)}</span><i style="background:${heat(pa, TH.pa)}"></i></button>`; }).join("");
+  $$("#gRail .rc").forEach(b => b.onclick = () => gSwitch(+b.dataset.k));
+  railDepth();
+}
+function railDepth() {  // cards piled up at the top or bottom edge sink back a little
+  const rl = $("#gRail"), cs = $$(".rc", rl); if (!cs.length) return;
+  const H = cs[0].offsetHeight + 8, n = cs.length, vh = rl.clientHeight, st = rl.scrollTop;
+  cs.forEach((c, i) => {
+    const y = i * H - st, a = i * 7, b = vh - H + 8 - (n - 1 - i) * 7, d = clamp(Math.max((a - y) / H, (y - b) / H, 0), 0, 1);
+    c.style.scale = d ? 1 - d * 0.08 : ""; c.style.filter = d ? `brightness(${1 - d * 0.4})` : "";
+  });
+}
+$("#gRail").addEventListener("scroll", railDepth, { passive: true });
+new ResizeObserver(() => { if (ev.grp) railDepth(); }).observe($("#gRail"));
+async function gSwitch(k) {
+  const G = ev.grp; if (!G || G.busy) return;
+  k = (k + G.list.length) % G.list.length; if (k === G.k) return;
+  const it = G.list[k];
+  G.busy = true; const ok = await ensureRec(it); G.busy = false;
+  if (!ok || ev.grp !== G) return;
+  const from = $(`#gRail .rc[data-k="${k}"]`); G.k = k;
+  pageSwap([from, null], () => openEval(it), () => [stage, $("#evTitle")]);
+  from?.scrollIntoView({ block: "nearest", behavior: calm() ? "auto" : "smooth" });
+}
+async function openGroup(id, from) {
+  const S = stacks().find(s => s.g.id === id), list = S ? S.list.filter(it => it.card && it.src === "lib") : [];
+  closeGMenu();
+  if (!list.length) return toast("In dieser Gruppe ist noch keine Aufnahme verglichen.");
+  if (!await ensureRec(list[0])) return;
+  from = $(`#lib .stack[data-g="${CSS.escape(id)}"]`) || from;  // the pile may have been redrawn meanwhile
+  ev.scrollY = scrollY;
+  const G = ev.grp = { g: S.g, list, open: S.list.length - list.length, k: 0, ana: clamp(+store.get("gemx.ana") || 0, 0, ANA.length - 1) };
+  pageSwap([$(".pile", from), $(".slabel span", from)], () => openEval(list[0]), () => [stage, $("#evTitle")]);
+  list.forEach(it => { if (it.rec) return; prefetch(it); it._pf?.then(() => { if (ev.grp === G) { renderAna(); drawDrawer(); } }); });
+}
 
 async function api(url, opt) {
   const r = await fetch(url, opt);
@@ -1030,7 +1343,7 @@ async function pickRoot() {
 async function openItem(it) {
   if (!await ensureRec(it)) return swRelease(true);
   const c = $(`.lcard[data-id="${CSS.escape(it.id)}"]`);
-  ev.scrollY = scrollY;
+  ev.scrollY = scrollY; ev.grp = null;
   pageSwap(c ? [$(".thumb", c), $(".nm", c)] : [], () => openEval(it), () => [stage, $("#evTitle")]);
 }
 
@@ -1137,11 +1450,14 @@ function defaultJoint(s) {  // the joint whose angle deviates most: the first th
   return JI[DATA.angle_at[n]];
 }
 function openEval(it) {
+  const G = ev.grp, keep = G && ev.rec && !$("#ev").hidden, sel = ev.sel;  // switching inside a group keeps joint and layout
   stopPlay(); closeLayMenu(); setHelp(false);
-  Object.assign(ev, { it, rec: it.rec, s: it.rec.series || null, N: it.rec.xs.length, k: 0, jerr: {}, pipW: null, lay: { full: "sim", pip: "vid", corner: "br" } });
+  Object.assign(ev, { it, rec: it.rec, s: it.rec.series || null, N: it.rec.xs.length, k: 0, jerr: {}, pipW: keep ? ev.pipW : null, lay: keep ? ev.lay : { full: "sim", pip: "vid", corner: "br" } });
   const r = ev.rec;
   $("#evTitle").textContent = `${r.nr ? r.nr + " · " : ""}${r.name}`;
-  $("#evSub").textContent = [r.view, r.date, num(ev.N / FPS, 1) + " s"].filter(Boolean).join(" · ");
+  const sub = [r.view, r.date, num(ev.N / FPS, 1) + " s"].filter(Boolean).join(" · ");
+  $("#evSub").innerHTML = G ? `<i class="gdot" style="--c:${gcolor(G.g)};display:inline-block;width:8px;height:8px;margin:0 6px 0 0"></i>${esc(G.g.name)} · ${G.k + 1} von ${G.list.length}${G.open ? ` (${G.open} offen)` : ""} · ${esc(sub)}` : esc(sub);
+  $("#ev").classList.toggle("grp", !!G); $("#gRail").hidden = $("#gAna").hidden = !G;
   $("#evSub").title = r.stem || "";
   $("#gxTag").hidden = !ev.s; $("#hint").hidden = false; $("#camBtn").hidden = !ev.s?.cam;
   $$("[data-grip]").forEach(g => g.hidden = !hasVid());
@@ -1156,14 +1472,19 @@ function openEval(it) {
   $("#ov").hidden = true; $("#ev").hidden = false;
   $$(".thumb video").forEach(v => v.removeAttribute("src"));  // free the connections
   if (ev.s?.cam) [ev.yaw, ev.pitch] = camView(); else [ev.yaw, ev.pitch] = [-0.6, -0.3];
-  ev.sel = defaultJoint(r.summary); $("#drawer").classList.add("open"); drawFig();
+  ev.sel = keep && sel >= 0 ? sel : defaultJoint(r.summary); $("#drawer").classList.add("open"); drawFig();
+  if (G) renderRail();
   layout(false); draw();
+  if (G) renderAna();
 }
 function closeEval() {
   if (!isOpen($("#ev"))) return;
-  const id = ev.it?.id, cardParts = () => { const c = id && $(`.lcard[data-id="${CSS.escape(id)}"]`); return c ? [$(".thumb", c), $(".nm", c)] : []; };
+  const id = ev.it?.id, G = ev.grp, cardParts = G
+    ? () => { const el = $(`#lib .stack[data-g="${CSS.escape(G.g.id)}"]`); return el ? [$(".pile", el), $(".slabel span", el)] : []; }  // back onto its pile
+    : () => { const c = id && $(`.lcard[data-id="${CSS.escape(id)}"]`); return c ? [$(".thumb", c), $(".nm", c)] : []; };
   pageSwap([stage, $("#evTitle")], () => {
     stopPlay(); closeLayMenu(); setHelp(false); showReport(false); clearTimeout(ev.cacheT); buildCache(null); vid.removeAttribute("src"); vid.load();
+    if (G) { ev.grp = null; $("#ev").classList.remove("grp"); $("#gRail").hidden = $("#gAna").hidden = true; }
     $("#ev").hidden = true; $("#ov").hidden = false;
     if ($(".thumb video:not([src])", $("#lib"))) renderLib(); else swSync();  // cards stay as they were: no rebuild, no reload
     scrollTo(0, ev.scrollY || 0);
@@ -1621,6 +1942,14 @@ function flipBands(j) {
   const n = J[j] || "", grp = /hip|knee|ankle/.test(n) ? ["Beine"] : /shoulder|elbow|wrist/.test(n) ? ["Arme"] : Object.keys(s.flips);
   return s.gemx.map((_, i) => grp.some(gr => s.flips[gr][i]));
 }
+// Gruppenmodus: die übrigen Aufnahmen der Gruppe liegen blass darunter, auf die Länge der aktuellen gestreckt
+const peers = () => ev.grp ? ev.grp.list.filter(it => it !== ev.it && it.rec?.series).map(it => it.rec) : [];
+function peerErr(r, j) {
+  const c = r._je || (r._je = {}); if (c[j]) return c[j];
+  const s = r.series, xs = r.xs;
+  return c[j] = s.gemx.map((f, i) => { const x = xs[s.k0 + i]; return 1000 * Math.hypot(f[3 * j] - x[3 * j], f[3 * j + 1] - x[3 * j + 1], f[3 * j + 2] - x[3 * j + 2]); });
+}
+const extent = arrs => { let lo = Infinity, hi = -Infinity; for (const a of arrs) for (const v of a) { if (v < lo) lo = v; if (v > hi) hi = v; } return [lo, hi]; };
 function drawDrawer() {
   const dr = $("#drawer"); if (!dr.classList.contains("open") || ev.sel < 0) return;
   const c = $("#dcv canvas"), [g, w, h] = setup(c), N = ev.N, j = ev.sel, s = ev.s;
@@ -1631,12 +1960,17 @@ function drawDrawer() {
   ev.baPts = null;
   if (ev.ba && ag) return drawBa(g, w, h, an, ax, ag, j);
   const geo = ev.grGeo = { split: ax ? h * 0.58 : 0, dep: null, err: null };  // for the Kurzhilfe
-  const err = s ? jointErr(j) : null, dep = s ? jointDepth(j) : null;
+  const err = s ? jointErr(j) : null, dep = s ? jointDepth(j) : null, P = peers();
   g.fillStyle = "rgba(255,121,113,.13)";
   flipBands(j).forEach((f, i) => f && g.fillRect((s.k0 + i) / N * w, 0, Math.max(1.5, w / N), h));
   const split = ax ? h * 0.58 : 0;  // angles on top, joint distance below
   if (err) {
     const hi = Math.max(150, ...err), y0 = h - 2, hh = h - split - 8;
+    g.strokeStyle = fx(.13); g.lineWidth = 1;
+    for (const r of P) {  // the others' distance, cut at this recording's scale
+      const e = peerErr(r, j), n = r.xs.length, k0 = r.series.k0; g.beginPath();
+      e.forEach((v, i) => { const x = (k0 + i + 0.5) / n * w, y = y0 - Math.min(v, hi) / hi * hh; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke();
+    }
     g.beginPath(); g.moveTo(X(s.k0), y0);
     err.forEach((v, i) => g.lineTo(X(s.k0 + i), y0 - v / hi * hh)); g.lineTo(X(s.k0 + err.length - 1), y0); g.closePath();
     const grad = g.createLinearGradient(0, y0 - hh, 0, y0); grad.addColorStop(0, "rgba(117,184,255,.45)"); grad.addColorStop(1, "rgba(117,184,255,.04)");
@@ -1650,8 +1984,10 @@ function drawDrawer() {
     g.fillStyle = css("--n-faint"); g.font = "10.5px " + css("--n-font"); g.fillText(`${num(hi)} mm`, 4, y0 - hh + 10);
   }
   if (ax) {
-    const vals = ax.concat(ag || []), lo = Math.min(...vals), hi = Math.max(...vals) + 1e-6, Y = v => 6 + (1 - (v - lo) / (hi - lo)) * (split - 12);
-    const line = (arr, k0, col, lw) => { g.strokeStyle = col; g.lineWidth = lw; g.beginPath(); arr.forEach((v, i) => i ? g.lineTo(X(k0 + i), Y(v)) : g.moveTo(X(k0 + i), Y(v))); g.stroke(); };
+    const PA = P.filter(r => r.angles_xs[an] && r.series.angles_gemx[an]);
+    const [lo, hi0] = extent([ax, ag || [], ...PA.flatMap(r => [r.angles_xs[an], r.series.angles_gemx[an]])]), hi = hi0 + 1e-6, Y = v => 6 + (1 - (v - lo) / (hi - lo)) * (split - 12);
+    const line = (arr, k0, col, lw, n = N) => { g.strokeStyle = col; g.lineWidth = lw; g.beginPath(); arr.forEach((v, i) => { const x = (k0 + i + 0.5) / n * w; i ? g.lineTo(x, Y(v)) : g.moveTo(x, Y(v)); }); g.stroke(); };
+    for (const r of PA) { line(r.angles_xs[an], 0, fx(.1), 1, r.xs.length); line(r.series.angles_gemx[an], r.series.k0, "rgba(117,184,255,.16)", 1, r.xs.length); }
     line(ax, 0, css("--xs"), 1.8); if (ag) line(ag, s.k0, css("--gx"), 1.8);
     g.fillStyle = css("--n-faint"); g.font = "10.5px " + css("--n-font"); g.fillText(`${num(hi)}°`, 4, 14); g.fillText(`${num(lo)}°`, 4, split - 6);
   }
@@ -1660,7 +1996,8 @@ function drawDrawer() {
   $("#dLegend").innerHTML = (ax ? `<span><i style="background:var(--xs)"></i>${an.replace(/ [RL]$/, "")}winkel Xsens</span>` + (ag ? `<span><i style="background:var(--gx)"></i>GemX</span>` : "") : "")
     + (err ? `<span><i style="background:rgba(117,184,255,.45);height:8px"></i>Abstand</span>` : "")
     + (dep ? `<span><i style="background:var(--n-warn)"></i>davon Tiefe</span>` : "")
-    + (s && flipBands(j).some(Boolean) ? `<span><i style="background:rgba(255,121,113,.4);height:8px"></i>vertauscht</span>` : "");
+    + (s && flipBands(j).some(Boolean) ? `<span><i style="background:rgba(255,121,113,.4);height:8px"></i>vertauscht</span>` : "")
+    + (P.length ? `<span title="auf die Länge dieser Aufnahme gestreckt"><i style="background:${fx(.25)}"></i>übrige der Gruppe (${P.length})</span>` : "");
   const i = gi(ev.k);
   $("#dVals").innerHTML = (ax ? `<b>${num(ax[ev.k])}°</b>` + (ag && i >= 0 ? `<b style="color:var(--gx)">${num(ag[i])}°</b>` : "") : "")
     + (err && i >= 0 ? `<b style="color:var(--n-dim)">${num(err[i])} mm</b>` : "")
@@ -1671,11 +2008,15 @@ function drawDrawer() {
 function drawBa(g, w, h, an, ax, ag, j) {
   const s = ev.s, k0 = s.k0, flips = flipBands(j);
   const m = ag.map((v, i) => (v + ax[k0 + i]) / 2), d = ag.map((v, i) => v - ax[k0 + i]);
-  const bias = mean(d), sd = Math.sqrt(mean(d.map(v => (v - bias) ** 2))), lo = bias - 1.96 * sd, hi = bias + 1.96 * sd;
-  const mm = mean(m), den = m.reduce((a, v) => a + (v - mm) ** 2, 0);
-  const slope = den ? m.reduce((a, v, i) => a + (v - mm) * (d[i] - bias), 0) / den : 0;
-  const xa = Math.min(...m), xb = Math.max(...m) + 1e-6;
-  const ya = Math.min(0, lo, ...d), yb = Math.max(0, hi, ...d) + 1e-6, pad = 8, R = 112;  // R: margin for the line labels
+  // group mode: bias, limits and trend over all frames of the group; this recording's dots stay coloured
+  const pm = [], pd = [];
+  for (const r of peers()) { const px = r.angles_xs[an], pg = r.series.angles_gemx[an], q0 = r.series.k0; if (px && pg) pg.forEach((v, i) => { pm.push((v + px[q0 + i]) / 2); pd.push(v - px[q0 + i]); }); }
+  const M = pm.length ? m.concat(pm) : m, Dd = pm.length ? d.concat(pd) : d, own = mean(d);
+  const bias = mean(Dd), sd = Math.sqrt(mean(Dd.map(v => (v - bias) ** 2))), lo = bias - 1.96 * sd, hi = bias + 1.96 * sd;
+  const mm = mean(M), den = M.reduce((a, v) => a + (v - mm) ** 2, 0);
+  const slope = den ? M.reduce((a, v, i) => a + (v - mm) * (Dd[i] - bias), 0) / den : 0;
+  const [xa, xb0] = extent([M]), xb = xb0 + 1e-6, [da, db] = extent([Dd]);
+  const ya = Math.min(0, lo, da), yb = Math.max(0, hi, db) + 1e-6, pad = 8, R = 112;  // R: margin for the line labels
   const X = v => pad + (v - xa) / (xb - xa) * (w - pad - R), Y = v => pad + (1 - (v - ya) / (yb - ya)) * (h - 2 * pad - 12);
   const hline = (v, col, dash) => {
     g.strokeStyle = col; g.lineWidth = 1.2; g.setLineDash(dash); g.beginPath(); g.moveTo(0, Y(v)); g.lineTo(w - R + 4, Y(v)); g.stroke(); g.setLineDash([]);
@@ -1693,7 +2034,8 @@ function drawBa(g, w, h, an, ax, ag, j) {
     geo.lines.push([Y(v), key]); geo.labels.push([y - 4, key]);
   }
   ev.baPts = m.map((v, i) => [X(v), Y(d[i]), k0 + i, flips[i]]);
-  g.fillStyle = css("--gx"); g.globalAlpha = 0.35;
+  if (pm.length) { g.fillStyle = fx(.22); pm.forEach((v, i) => { g.beginPath(); g.arc(X(v), Y(pd[i]), 1.6, 0, 7); g.fill(); }); }
+  g.fillStyle = css("--gx"); g.globalAlpha = pm.length ? 0.6 : 0.35;
   ev.baPts.forEach(([x, y], i) => { if (!flips[i]) { g.beginPath(); g.arc(x, y, 2, 0, 7); g.fill(); } });
   g.fillStyle = "rgb(255,121,113)"; g.globalAlpha = 0.6;
   ev.baPts.forEach(([x, y], i) => { if (flips[i]) { g.beginPath(); g.arc(x, y, 2, 0, 7); g.fill(); } });
@@ -1705,12 +2047,13 @@ function drawBa(g, w, h, an, ax, ag, j) {
   const i = gi(ev.k);
   if (i >= 0) { const [x, y] = ev.baPts[i]; g.strokeStyle = css("--n-ink"); g.lineWidth = 2; g.beginPath(); g.arc(x, y, 5, 0, 7); g.stroke(); }
   $("#dName").textContent = jointName(J[j]);
-  $("#dLegend").innerHTML = `<span><i style="background:var(--gx);height:6px;width:6px;border-radius:50%"></i>${an} je Frame</span>`
+  $("#dLegend").innerHTML = `<span><i style="background:var(--gx);height:6px;width:6px;border-radius:50%"></i>${pm.length ? "diese Aufnahme" : an + " je Frame"}</span>`
+    + (pm.length ? `<span title="Bias, Grenzen und Trend gelten für die ganze Gruppe"><i style="background:${fx(.3)};height:6px;width:6px;border-radius:50%"></i>übrige der Gruppe</span>` : "")
     + `<span><i style="background:var(--n-warn)"></i>95 %-Grenzen</span>`
     + `<span title="Steigung der Differenz über den Winkel: wächst der Fehler mit größeren Winkeln?"><i style="background:var(--n-ink);height:1px"></i>Trend ${sg(slope * 10)}° je 10°</span>`
     + (flips.some(Boolean) ? `<span><i style="background:rgba(255,121,113,.6);height:6px;width:6px;border-radius:50%"></i>vertauscht</span>` : "");
   $("#dVals").innerHTML = (i >= 0 ? `<b style="color:var(--gx)">${sg(d[i])}°</b><small>jetzt GemX − Xsens</small>` : "")
-    + `<small>Bias ${sg(bias)}°</small><small>${sg(lo)} … ${sg(hi)}°</small>`;
+    + (pm.length ? `<small>Bias hier ${sg(own)}°</small><small>Gruppe ${sg(bias)}°</small>` : `<small>Bias ${sg(bias)}°</small>`) + `<small>${sg(lo)} … ${sg(hi)}°</small>`;
 }
 function baFrame(el, e) {  // frame of the dot nearest to the pointer
   const r = el.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
@@ -1815,11 +2158,18 @@ const HELP = {
   graph: ["Gelenkverlauf", "Oben der Gelenkwinkel (weiß Xsens, blau GemX), unten der Abstand dieses Gelenks zwischen beiden (Fläche) und davon der Anteil entlang der Blickrichtung der Kamera (Linie, Tiefe), rot hinterlegt vertauschte Frames. Gleiche Zeitachse wie die Zeitleiste darunter."],
   jpick: ["Gelenkwahl", "Gelenk antippen, um seinen Verlauf zu sehen. Farben wie in der Simulation; R ist die rechte Körperseite."],
   play: ["Wiedergabe", "Abspielen und Anhalten (Leertaste), daneben das Tempo. Pfeiltasten gehen einen Frame, mit Umschalt eine Sekunde."],
+  rail: ["Aufnahmen der Gruppe", "Antippen öffnet die Aufnahme, Pfeil hoch und runter wechselt. Blau umrandet ist die aktuelle; sie ist in allen Grafiken rechts und unten hervorgehoben. Der Punkt zeigt die Haltung. Passen nicht alle hin, legen sich die Karten beim Scrollen übereinander."],
+  ana0: ["Steckbrief", "Was diese Gruppe von allen übrigen Aufnahmen unterscheidet: je Messwert der Median der Gruppe gegen den der übrigen, oben die größten Unterschiede. Die Körperkarte zeigt, welche Gelenke in der Gruppe weiter von Xsens weg liegen. Ziehen oder Pfeile blättern."],
+  ana1: ["Streuung", "Jeder Punkt eine Aufnahme: farbig die Gruppe, grau die übrigen, umrandet die aktuelle. Liegen alle Gruppenpunkte auf einer Seite, gilt das Merkmal für die ganze Bewegungsform; sonst hängt es an einzelnen Aufnahmen. Einen Punkt antippen öffnet die Aufnahme."],
+  ana2: ["Bewegungszustand", "Wann GemX schlechter wird, ohne Zeitachse: links der Haltungsfehler je Blickrichtung der Person zur Kamera (von oben gesehen, Kamera unten), rechts je Körperlage. Die graue Linie zeigt, wie viel der Bilder in dieser Lage waren; der dunkle Strich den Wert der aktuellen Aufnahme."],
+  ana3: ["Fehlerart", "Woher der Fehler kommt. Links von oben, wohin das Becken bei GemX gegenüber Xsens verrutscht: ist die Wolke entlang der Sicht der Kamera lang, verschätzt sich GemX vor allem in der Entfernung. Rechts je Fehlerart die Aufnahmen der Gruppe vor grün, gelb und rot, gestrichelt der Median der übrigen."],
+  ana4: ["Gelenkwinkel", "Welchen Winkelbereich Xsens (grau) und GemX (blau) in der aktuellen Aufnahme sehen, gestrichelt die Xsens-Spitze. Ist der blaue Bogen kürzer, sieht GemX die Bewegung zu klein. Darunter Weite und Bias, und dieselben Werte für die ganze Gruppe."],
+  ana5: ["Ausfälle", "Jede Aufnahme ein Streifen, jedes Feld ein Abschnitt: kräftig, wo der Haltungsfehler die Grenze überschreitet. So unterscheidet man „ständig etwas daneben“ von „meist gut, aber zeitweise weg“. Rechts Anteil schlechter Bilder und längste Lücke."],
 };
 let helpOn = false;
 function setHelp(on) {
-  helpOn = on; document.body.classList.toggle("helpmode", on); $("#helpBtn").classList.toggle("on", on);
-  if (on) showHelp($("#helpBtn")); else reveal($("#qh"), false);
+  helpOn = on; document.body.classList.toggle("helpmode", on); $("#helpBtn").classList.toggle("on", on); $("#gHelp").classList.toggle("on", on);
+  if (on) showHelp(ev.grp ? $("#gHelp") : $("#helpBtn")); else reveal($("#qh"), false);
 }
 let helpAt = null;
 // key: HELP entry (default the element's data-help); r: where to point (default the element), e.g.
@@ -1943,6 +2293,7 @@ document.addEventListener("keydown", e => {
   else if (e.key === " ") { e.preventDefault(); togglePlay(); }
   else if (e.key === "ArrowLeft") { e.preventDefault(); seek(ev.k - (e.shiftKey ? FPS : 1)); }
   else if (e.key === "ArrowRight") { e.preventDefault(); seek(ev.k + (e.shiftKey ? FPS : 1)); }
+  else if (ev.grp && (e.key === "ArrowUp" || e.key === "ArrowDown")) { e.preventDefault(); gSwitch(ev.grp.k + (e.key === "ArrowDown" ? 1 : -1)); }
 });
 
 // ---- Schriftliche Auswertung (aus den Kennzahlen erzeugt) ----
@@ -2022,7 +2373,7 @@ function reportText(it) {
 function showReport(open) {
   if (open) { $("#repTxt").innerHTML = reportHtml(ev.it); $("#repTxt").scrollTop = 0; $("#copy").lastElementChild.textContent = "Kopieren"; }
   reveal($("#scrim"), open, null, true);
-  reveal($("#report"), open, $("#repBtn"));
+  reveal($("#report"), open, ev.grp ? $("#gRep") : $("#repBtn"));
 }
 $("#repBtn").onclick = () => showReport(true);
 $("#repClose").onclick = $("#scrim").onclick = () => showReport(false);
@@ -2161,7 +2512,7 @@ setInterval(() => $$(".lcard.busy").forEach(c => { const it = items.find(x => x.
 // ---- Wischen: Übersicht -> (nach links) Auswertung, Auswertung -> (nach rechts) Übersicht ----
 const swipeTarget = () => (ev.it && items.includes(ev.it) ? ev.it : null) || items.find(it => it.card) || items.find(it => itemState(it) === "todo");
 const SW_SKIP = { ov: "button, a, input, select, .n-seg, .shr, .shscrim, .toast",
-  ev: "button, input, select, .pane, #divider, #layMenu, #track, #dcv, #jfig, #qh, .report, .scrim, .toast" };
+  ev: "button, input, select, .pane, #divider, #layMenu, #track, #dcv, #jfig, #qh, .report, .scrim, .toast, #gRail, #gAna" };
 let sw = null, swDone = 0;
 function swSync() {
   const t = swipeTarget(), b = $("#swFwd");
