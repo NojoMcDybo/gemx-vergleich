@@ -324,8 +324,7 @@ def save_to_downloads(req):
 
 # Explorer-Ordnerdialog (IFileOpenDialog mit FOS_PICKFOLDERS) statt des alten Baumdialogs;
 # Windows PowerShell 5.1 kennt nur den alten FolderBrowserDialog, daher die COM-Schnittstelle direkt
-PICK_PS = r"""Add-Type -AssemblyName System.Windows.Forms
-Add-Type -TypeDefinition @'
+PICK_PS = r"""Add-Type -TypeDefinition @'
 using System;
 using System.Runtime.InteropServices;
 [ComImport, Guid("DC1C5A9C-E88A-4dde-A5A1-60F82A20AEF7")] class FileOpenDialogCo {}
@@ -371,16 +370,26 @@ public static class FolderPicker {
   }
 }
 '@
-$f = New-Object System.Windows.Forms.Form -Property @{TopMost=$true; ShowInTaskbar=$false}
-$p = [FolderPicker]::Pick($f.Handle, $env:PICK_START)
+$p = [FolderPicker]::Pick([IntPtr][long]$env:PICK_OWNER, $env:PICK_START)
 [Console]::OutputEncoding = [Text.Encoding]::UTF8; $p"""
 
 
 def pick_folder():
-    """Native folder dialog (Windows Explorer style), opening at the current root; '' when cancelled."""
-    env = dict(os.environ, PICK_START=str(root_dir() or ""))
-    r = subprocess.run(["powershell", "-NoProfile", "-STA", "-Command", PICK_PS], capture_output=True, env=env,
-                       timeout=600, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    """Native folder dialog (Windows Explorer style), opening at the current root; '' when cancelled.
+    Its owner is the window in front, i.e. the app window the click came from: an owned window always
+    lies above its owner, so the dialog is not hidden behind the app (a hidden helper form was)."""
+    import ctypes
+    u32 = ctypes.windll.user32
+    u32.GetForegroundWindow.restype = ctypes.c_void_p
+    u32.EnableWindow.argtypes = [ctypes.c_void_p, ctypes.c_bool]
+    owner = u32.GetForegroundWindow() or 0
+    env = dict(os.environ, PICK_START=str(root_dir() or ""), PICK_OWNER=str(owner))
+    try:
+        r = subprocess.run(["powershell", "-NoProfile", "-STA", "-Command", PICK_PS], capture_output=True, env=env,
+                           timeout=600, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+    finally:
+        if owner:  # the modal dialog disables its owner; never leave the app window locked (timeout, crash)
+            u32.EnableWindow(owner, True)
     return r.stdout.decode("utf-8", "replace").strip()
 
 

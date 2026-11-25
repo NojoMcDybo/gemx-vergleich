@@ -190,7 +190,9 @@ button.gdot:hover { transform: scale(1.35); }
 /* Gruppenmodus der Auswertung: links die Aufnahmen der Gruppe, Mitte Skelett und Video, rechts die Analyse */
 .eval.grp { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
 .eval.grp > .ebar { grid-column: 1 / -1; grid-row: 1; }
-.eval.grp > .stage { grid-column: 1; grid-row: 2; margin: 0 0 0 20px; }
+/* die Simulation läuft hinter der Analysekarte weiter (wie hinter der Kennzahlenkarte der Einzelauswertung);
+   Fenster, Bild im Bild und Skelettmitte bleiben im sichtbaren Teil links davon (stageVis) */
+.eval.grp > .stage { grid-column: 1 / -1; grid-row: 2; }
 /* die Kartenleiste liegt links über der Simulation: deren Beschriftung und Würfel rücken daneben */
 .eval.grp .pane:not(.pip) .tag { left: 108px; }
 .eval.grp #pSim:not(.pip):not([data-avoid="bl"]) .viewnav { left: 106px; }
@@ -214,9 +216,9 @@ button.gdot:hover { transform: scale(1.35); }
 .rc.cur { box-shadow: 0 0 0 2px var(--gx), 0 6px 18px rgba(0,0,0,.3); }
 .rc:focus-visible { outline: 2px solid var(--gx); outline-offset: 2px; }
 /* Steg zwischen Simulation und Analyse: liegt im Spalt am Anfang der zweiten Spalte */
-.eval .gsplit.divider { position: relative; grid-column: 2; grid-row: 2; justify-self: start; top: auto; bottom: auto; }
+.eval .gsplit.divider { position: relative; z-index: 10; grid-column: 2; grid-row: 2; justify-self: start; top: auto; bottom: auto; }
 .gsplit:focus-visible { outline: 2px solid var(--gx); outline-offset: -2px; border-radius: 6px; }
-.gana { grid-column: 2; grid-row: 2; margin: 0 20px 0 12px; min-height: 0; border-radius: 22px; padding: 14px 18px 12px; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 10px; }
+.gana { position: relative; z-index: 9; grid-column: 2; grid-row: 2; margin: 0 20px 0 12px; min-height: 0; border-radius: 22px; padding: 14px 18px 12px; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 10px; }
 .gah { display: flex; align-items: center; gap: 6px; }
 .gah h2 { flex: 1; min-width: 0; margin: 0; font: 600 17px var(--n-font-display); letter-spacing: -.01em; }
 .gah .acts { display: flex; gap: 2px; margin-right: -6px; }
@@ -285,17 +287,17 @@ body.swiping, body.swiping * { cursor: grabbing !important; }
 #pVid video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
 #pSim { background: radial-gradient(70% 60% at 50% 70%, #26262a, #19191b); cursor: grab; touch-action: none; }
 #pSim.pip { cursor: grab; }
-.grip { position: absolute; left: 50%; top: 8px; transform: translateX(-50%); width: 46px; height: 22px; border-radius: 999px; display: grid; place-items: center; font-size: 18px; color: var(--n-dim); cursor: grab; z-index: 3; opacity: .55; transition: opacity .25s, transform .38s var(--n-spring); touch-action: none; }
+.grip { position: absolute; left: var(--cx, 50%); top: 8px; transform: translateX(-50%); width: 46px; height: 22px; border-radius: 999px; display: grid; place-items: center; font-size: 18px; color: var(--n-dim); cursor: grab; z-index: 3; opacity: .55; transition: opacity .25s, transform .38s var(--n-spring); touch-action: none; }
 .pane:hover .grip, .pane.drag .grip { opacity: 1; }
 .tag { position: absolute; left: 14px; top: 12px; padding: 5px 11px; border-radius: 999px; font-size: 11.5px; color: var(--n-dim); display: flex; gap: 10px; align-items: center; z-index: 2; pointer-events: none; }
 .tag i { display: inline-block; width: 12px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 5px; }
 .pip .tag, .pip .hint { display: none; }
 .hint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); padding: 6px 12px; border-radius: 999px; font-size: 11.5px; color: var(--n-dim); white-space: nowrap; pointer-events: none; z-index: 2; }
 .vwarn { position: absolute; left: 12px; bottom: 12px; right: 12px; padding: 6px 12px; border-radius: 12px; font-size: 11.5px; color: var(--n-warn); z-index: 2; }
-.snap { position: absolute; top: 0; bottom: 0; width: calc(50% - 6px); border-radius: 22px; z-index: 7; pointer-events: none; opacity: 0; transform: scale(.97);
+.snap { position: absolute; top: 0; bottom: 0; width: calc(var(--vw, 100%) / 2 - 6px); border-radius: 22px; z-index: 7; pointer-events: none; opacity: 0; transform: scale(.97);
   background: rgba(117,184,255,.10); box-shadow: inset 0 0 0 2px rgba(117,184,255,.55), 0 0 40px rgba(117,184,255,.15); transition: opacity .2s, transform .35s var(--n-spring); }
 .snap.on { opacity: 1; transform: none; }
-.snap.l { left: 0; } .snap.r { right: 0; }
+.snap.l { left: 0; } .snap.r { left: calc(var(--vw, 100%) / 2 + 6px); }
 .stats { position: absolute; top: 12px; right: 12px; width: 296px; padding: 16px 18px; border-radius: 24px; z-index: 6; max-height: calc(100% - 24px); overflow: auto; scrollbar-width: none; transition: width .45s var(--n-spring), padding .3s; }
 .stats.min { width: 214px; padding: 10px 14px; }
 /* Ein-/Ausklappen: Inhalt faltet über die Zeilenhöhe zusammen, die Karte wächst mit */
@@ -447,8 +449,11 @@ body.helpmode [data-help]:hover { outline: 1.5px dashed rgba(117,184,255,.6); ou
 #evSub .syncw { margin: 0 0 0 10px; vertical-align: 1px; }
 .thumb .syncw { position: absolute; right: 8px; bottom: 8px; z-index: 2; margin: 0; background: color-mix(in srgb, var(--n-low) 24%, var(--n-surface)); }
 /* Namensschema: erscheint neben dem Datei- oder Ordnerdialog */
-.nhint { position: fixed; z-index: 40; top: 16px; left: 50%; transform: translateX(-50%); width: min(760px, calc(100vw - 32px)); border-radius: 22px; padding: 16px 20px 14px; pointer-events: none; }
-.nhint h2 { margin: 0 0 4px; font: 600 15px var(--n-font-display); }
+.nhint { position: fixed; z-index: 40; top: 16px; left: 50%; transform: translateX(-50%); width: min(760px, calc(100vw - 32px)); border-radius: 22px; padding: 16px 20px 14px;
+  -webkit-user-select: text; user-select: text; }
+.nhint .nh { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; }
+.nhint h2 { flex: 1; margin: 0; font: 600 15px var(--n-font-display); }
+.nhint .nh .n-ico { margin-right: -8px; }
 .nhint p { margin: 0 0 10px; font-size: 13px; line-height: 1.5; color: var(--n-dim); }
 .nhint p:last-child { margin: 10px 0 0; }
 .nhint .nrows { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 5px 14px; align-items: baseline; font-size: 13px; }
@@ -1349,7 +1354,10 @@ new ResizeObserver(() => renderAna()).observe($("#gAnaBody"));
 // ---- Steg in der Mitte: Breite von Simulation und Analyse, gemerkt für alle Gruppen ----
 const GS0 = 1 / 2.15, gsClamp = f => clamp(f, 0.28, 0.72);
 let gsplit = +store.get("gemx.gsplit") || GS0;  // clamped on use: clamp is defined further down
-function applySplit() { const f = gsClamp(gsplit); $("#ev").style.gridTemplateColumns = ev.grp ? `minmax(0, ${f}fr) minmax(0, ${1 - f}fr)` : ""; }
+function applySplit() {
+  const f = gsClamp(gsplit); $("#ev").style.gridTemplateColumns = ev.grp ? `minmax(0, ${f}fr) minmax(0, ${1 - f}fr)` : "";
+  if (ev.grp && ev.rec) requestAnimationFrame(() => { if (ev.grp) { layout(false); drawSim(); } });
+}
 function setSplit(f) { gsplit = gsClamp(f); applySplit(); store.set("gemx.gsplit", gsplit.toFixed(3)); }
 {
   const el = $("#gSplit");
@@ -1462,9 +1470,9 @@ async function loadLibrary(json) {
 }
 async function pickRoot() {
   $("#rootBtn").disabled = true; nameHint("folder");
-  try { const r = await api("api/pick-root"); nameHint(false); if (r.picked) await loadLibrary(); }
+  try { const r = await api("api/pick-root"); if (r.picked) await loadLibrary(); }
   catch (e) { toast(e.message, true); }
-  finally { $("#rootBtn").disabled = false; nameHint(false); }
+  finally { $("#rootBtn").disabled = false; }
 }
 async function openItem(it) {
   if (!await ensureRec(it)) return swRelease(true);
@@ -1551,21 +1559,19 @@ function nameHint(mode, kind) {
   if (!mode) return reveal(el, false);
   const ex = items.map(it => it.stem).find(s => s && KEY.test(s)), pat = "<b>NNN</b>_<b>JJJJMMTT</b>_Beschreibung";
   const row = (k, label, file, note) => `<span class="${kind === k ? "on" : ""}">${label}</span><code>${pat}${file}</code><small>${note}</small>`;
-  el.innerHTML = `<h2>So werden die Dateien einer Bewegung zugeordnet</h2>
+  el.innerHTML = `<div class="nh"><h2>So werden die Dateien einer Bewegung zugeordnet</h2><button class="n-ico sm" data-i="close" id="nameHintX" title="Schließen (Esc)" aria-label="Schließen">${icon("close")}</button></div>
     <p>Gleiche Nummer <b>NNN</b> (drei Ziffern) und gleiches Datum <b>JJJJMMTT</b> am Namensanfang ergeben eine Aufnahme; der Rest des Namens ist frei.${ex ? ` Beispiel aus deinem Ordner: <code>${esc(ex)}</code>` : ""}</p>
     <div class="nrows">${row("mvnx", "Xsens", ".mvnx", "")}${row("gemx", "GemX", "/hpe_results.pt", "der Ordnername zählt")}${row("video", "Video", "_cut_30fps.mp4", "optional · das 30-fps-Video, auf dem GemX lief")}</div>
     <p>${mode === "folder" ? "Unterordner werden mit durchsucht. Dateien ohne dieses Muster werden übergangen; eine Aufnahme braucht Xsens und GemX."
       : kind ? "Einzeln gewählt zählt der Name nicht: die Datei kommt in dieses Feld."
       : "Je Art genau eine Datei: sie gehören zusammen, egal wie sie heißen. Mehrere Aufnahmen auf einmal besser als Ordner ins Fenster ziehen, sonst fehlt bei hpe_results.pt der Ordnername."}</p>`;
+  $("#nameHintX").onclick = () => nameHint(false);
   reveal(el, true);
 }
-function pickFiles(inp, kind) {  // the hint stays while the system dialog is open
-  nameHint("files", kind);
-  const done = () => { nameHint(false); inp.removeEventListener("cancel", done); removeEventListener("focus", late); };
-  const late = () => setTimeout(done, 400);  // without a cancel event: the window gets focus back
-  inp.addEventListener("cancel", done); inp.addEventListener("change", done, { once: true }); addEventListener("focus", late, { once: true });
-  inp.click();
-}
+// the hint stays after the dialog (to read or copy): X, Esc or a click beside it closes it
+document.addEventListener("pointerdown", e => { if (isOpen($("#nameHint")) && !e.target.closest("#nameHint, #pickAny, [data-slot], #rootBtn")) nameHint(false); });
+document.addEventListener("keydown", e => { if (e.key === "Escape" && isOpen($("#nameHint"))) { e.stopPropagation(); nameHint(false); } });
+function pickFiles(inp, kind) { nameHint("files", kind); inp.click(); }
 $("#pickAny").onclick = () => pickFiles($("#fAny"));
 $("#fAny").onchange = e => { takeFiles([...e.target.files]); e.target.value = ""; };
 for (const el of $$("[data-slot]")) {
@@ -1652,12 +1658,23 @@ $("#back").onclick = closeEval;
 
 // ---- Fenster: Simulation voll + Video als Bild im Bild, Andocken, Menü, Größe ----
 function aspect(name) { return name === "vid" && vid.videoWidth ? vid.videoWidth / vid.videoHeight : name === "vid" ? 16 / 9 : 4 / 3; }
+// sichtbare Breite der Bühne: in der Gruppenansicht deckt rechts die Analysekarte die Simulation ab
+function stageVis() {
+  const W = stage.clientWidth, a = $("#gAna");
+  return ev.grp && !a.hidden ? clamp(a.getBoundingClientRect().left - stage.getBoundingClientRect().left - 12, 160, W) : W;
+}
 function pipSize(name) {
-  const W = stage.clientWidth, w = clamp(ev.pipW ?? Math.max(200, Math.min(420, W * 0.3)), 160, Math.max(160, W * 0.7));
+  const W = stageVis(), w = clamp(ev.pipW ?? Math.max(200, Math.min(420, W * 0.3)), 160, Math.max(160, W * 0.7));
   return [w, Math.min(w / aspect(name), stage.clientHeight * 0.75)];
 }
-function rects() {
-  const W = stage.clientWidth, H = stage.clientHeight, gap = 12, m = 16, full = [0, 0, W, H], L = ev.lay;
+function rects() {  // the sim pane next to the analysis card reaches on behind it
+  const R = rectsVis(), W = stage.clientWidth, s = R.sim;
+  ev.simVis = null;
+  if (s && W - stageVis() > 1 && Math.abs(s[0] + s[2] - stageVis()) < 1) { ev.simVis = s[2]; R.sim = [s[0], s[1], W - s[0], s[3]]; }
+  return R;
+}
+function rectsVis() {
+  const W = stageVis(), H = stage.clientHeight, gap = 12, m = 16, full = [0, 0, W, H], L = ev.lay;
   if (!hasVid()) return { sim: full };
   if (L.split) {
     const lw = (W - gap) * (L.ratio ?? 0.5), a = [0, 0, lw, H], b = [lw + gap, 0, W - lw - gap, H];
@@ -1685,9 +1702,11 @@ function layout(animate = true) {
     }
     if (!animate) { el.offsetWidth; el.style.transition = ""; }
   }
+  $("#pSim").style.setProperty("--cx", ev.simVis ? ev.simVis / 2 + "px" : "");
+  stage.style.setProperty("--vw", stageVis() + "px");
   const dv = $("#divider");
   dv.hidden = !(hasVid() && L.split);
-  if (!dv.hidden) dv.style.left = (stage.clientWidth - 12) * (L.ratio ?? 0.5) + "px";
+  if (!dv.hidden) dv.style.left = (stageVis() - 12) * (L.ratio ?? 0.5) + "px";
   // the stats overlay sits top right: move it beside a picture-in-picture pane up there, or end
   // it above one down there (its content scrolls then)
   const st = $("#stats");
@@ -1720,10 +1739,10 @@ function dragMove(e) {
     const [w, h] = pipSize(drag.name); drag.w = w; drag.h = h;
     Object.assign(drag.el.style, { width: w + "px", height: h + "px" });
   }
-  const x = e.clientX - st.left, y = e.clientY - st.top;
-  drag.el.style.left = clamp(x - drag.fx * drag.w, -drag.w / 2, st.width - drag.w / 2) + "px";
+  const x = e.clientX - st.left, y = e.clientY - st.top, sw = stageVis();
+  drag.el.style.left = clamp(x - drag.fx * drag.w, -drag.w / 2, sw - drag.w / 2) + "px";
   drag.el.style.top = clamp(y - drag.fy * drag.h, 0, st.height - drag.h / 2) + "px";
-  drag.zone = x < 64 ? "l" : x > st.width - 64 ? "r" : null;
+  drag.zone = x < 64 ? "l" : x > sw - 64 ? "r" : null;
   $("#snap").className = "snap" + (drag.zone ? " on " + drag.zone : "");
   draw();
   return true;
@@ -1736,7 +1755,7 @@ function dragEnd(e) {
   const other = d.name === "sim" ? "vid" : "sim", st = stage.getBoundingClientRect(), r = d.el.getBoundingClientRect();
   if (d.zone) ev.lay = { split: true, left: d.zone === "l" ? d.name : other, ratio: 0.5 };
   else ev.lay = { full: other, pip: d.name, corner: !d.wasPip ? "br"  // newly small: always bottom right first
-    : (r.top + r.height / 2 - st.top < st.height / 2 ? "t" : "b") + (r.left + r.width / 2 - st.left < st.width / 2 ? "l" : "r") };
+    : (r.top + r.height / 2 - st.top < st.height / 2 ? "t" : "b") + (r.left + r.width / 2 - st.left < stageVis() / 2 ? "l" : "r") };
   layout();
   return d;
 }
@@ -1776,7 +1795,7 @@ function openLayMenu(name) {
   m.innerHTML = LAYOUTS.map(([t, L], i) => `<button class="lt${sameLay(ev.lay, L) ? " on" : ""}" data-l="${i}" title="${t}" aria-label="${t}">${layIcon(L)}</button>`).join("");
   m.getAnimations().forEach(a => a.cancel()); m.hidden = false;  // measure first, then grow out of the grip
   const grip = $(`[data-grip="${name}"]`), g = grip.getBoundingClientRect(), st = stage.getBoundingClientRect();
-  m.style.left = clamp(g.left + g.width / 2 - st.left - m.offsetWidth / 2, 8, st.width - m.offsetWidth - 8) + "px";
+  m.style.left = clamp(g.left + g.width / 2 - st.left - m.offsetWidth / 2, 8, stageVis() - m.offsetWidth - 8) + "px";
   m.style.top = g.bottom - st.top + 8 + "px";
   m.hidden = true; m._on = false; reveal(m, true, grip);
   if (!calm()) $$(".lt", m).forEach((b, i) => b.animate([{ opacity: 0, translate: "0 6px" }, { opacity: 1, translate: "0 0" }], { duration: 320, delay: 40 + i * 30, easing: "cubic-bezier(.22, 1, .36, 1)", fill: "backwards" }));
@@ -1789,7 +1808,7 @@ document.addEventListener("pointerdown", e => { if (isOpen($("#layMenu")) && !e.
 $("#divider").addEventListener("pointerdown", e => {
   e.preventDefault(); $("#divider").setPointerCapture(e.pointerId);
   gest = { move: m => {
-    const st = stage.getBoundingClientRect(); let r = clamp((m.clientX - st.left - 6) / (st.width - 12), 0.2, 0.8);
+    const st = stage.getBoundingClientRect(); let r = clamp((m.clientX - st.left - 6) / (stageVis() - 12), 0.2, 0.8);
     if (Math.abs(r - 0.5) < 0.02) r = 0.5;
     ev.lay.ratio = r; layout(false);  // ratio is the left pane's share
   } };
@@ -2043,7 +2062,7 @@ function drawSim() {
   const [g, w, h] = setup(c), xs = ev.rec.xs[ev.k], o = [xs[0], xs[1], 0.9], R = viewRot(), sc = h / 2.4;
   const P = (x, y, z) => {
     const p = rot3(R, x - o[0], y - o[1], z - o[2]), f = pf(4 / (4 - Math.min(p[2], 3.2)));  // eye 4 m from the pelvis
-    return [w / 2 + p[0] * sc * f, h / 2 - p[1] * sc * f];
+    return [(ev.simVis ?? w) / 2 + p[0] * sc * f, h / 2 - p[1] * sc * f];
   };
   const pj = (f, j) => P(f[3 * j], f[3 * j + 1], f[3 * j + 2]);
   g.strokeStyle = fx(.07); g.lineWidth = 1; g.beginPath();
@@ -2661,8 +2680,8 @@ setInterval(() => $$(".lcard.busy").forEach(c => { const it = items.find(x => x.
 
 // ---- Wischen: Übersicht -> (nach links) Auswertung, Auswertung -> (nach rechts) Übersicht ----
 const swipeTarget = () => (ev.it && items.includes(ev.it) ? ev.it : null) || items.find(it => it.card) || items.find(it => itemState(it) === "todo");
-const SW_SKIP = { ov: "button, a, input, select, .n-seg, .shr, .shscrim, .toast",
-  ev: "button, input, select, .pane, #divider, #layMenu, #track, #dcv, #jfig, #qh, .report, .scrim, .toast, #gRail, #gAna" };
+const SW_SKIP = { ov: "button, a, input, select, .n-seg, .shr, .shscrim, .toast, #nameHint",
+  ev: "button, input, select, .stage, .pane, #divider, #layMenu, #track, #dcv, #jfig, #qh, .report, .scrim, .toast, #gRail, #gAna, #gSplit" };
 let sw = null, swDone = 0;
 function swSync() {
   const t = swipeTarget(), b = $("#swFwd");
