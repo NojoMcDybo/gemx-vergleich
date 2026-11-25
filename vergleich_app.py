@@ -251,7 +251,7 @@ def library_json():
     found = scan(root) if root else {}
     library.clear()
     library.update(found)
-    items = [{"key": k, "nr": k[:3], **dict(zip(("name", "view", "date"), c.display_name(stem_of(v)))),
+    items = [{"key": k, "nr": k[:3], "stem": stem_of(v), **dict(zip(("name", "view", "date"), c.display_name(stem_of(v)))),
               "has": {t: t in v for t in ("mvnx", "gemx", "video")},
               "size": {t: p.stat().st_size for t, p in v.items()},
               "card": cached_card(k, v) if "mvnx" in v and "gemx" in v else None}
@@ -322,16 +322,64 @@ def save_to_downloads(req):
     return dest
 
 
+# Explorer-Ordnerdialog (IFileOpenDialog mit FOS_PICKFOLDERS) statt des alten Baumdialogs;
+# Windows PowerShell 5.1 kennt nur den alten FolderBrowserDialog, daher die COM-Schnittstelle direkt
 PICK_PS = r"""Add-Type -AssemblyName System.Windows.Forms
+Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+[ComImport, Guid("DC1C5A9C-E88A-4dde-A5A1-60F82A20AEF7")] class FileOpenDialogCo {}
+[ComImport, Guid("43826D1E-E718-42EE-BC55-A1E261C37BFE"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IShellItem {
+  void BindToHandler(IntPtr pbc, ref Guid bhid, ref Guid riid, out IntPtr ppv);
+  void GetParent(out IShellItem item);
+  void GetDisplayName(uint sigdn, [MarshalAs(UnmanagedType.LPWStr)] out string name);
+}
+[ComImport, Guid("42f85136-db7e-439c-85f1-e4075d135fc8"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+interface IFileDialog {
+  [PreserveSig] int Show(IntPtr owner);
+  void SetFileTypes(uint n, IntPtr specs);
+  void SetFileTypeIndex(uint i);
+  void GetFileTypeIndex(out uint i);
+  void Advise(IntPtr sink, out uint cookie);
+  void Unadvise(uint cookie);
+  void SetOptions(uint fos);
+  void GetOptions(out uint fos);
+  void SetDefaultFolder(IShellItem item);
+  void SetFolder(IShellItem item);
+  void GetFolder(out IShellItem item);
+  void GetCurrentSelection(out IShellItem item);
+  void SetFileName([MarshalAs(UnmanagedType.LPWStr)] string name);
+  void GetFileName([MarshalAs(UnmanagedType.LPWStr)] out string name);
+  void SetTitle([MarshalAs(UnmanagedType.LPWStr)] string title);
+  void SetOkButtonLabel([MarshalAs(UnmanagedType.LPWStr)] string text);
+  void SetFileNameLabel([MarshalAs(UnmanagedType.LPWStr)] string text);
+  void GetResult(out IShellItem item);
+}
+public static class FolderPicker {
+  [DllImport("shell32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
+  static extern void SHCreateItemFromParsingName(string path, IntPtr pbc, ref Guid riid, out IShellItem item);
+  public static string Pick(IntPtr owner, string start) {
+    var d = (IFileDialog)new FileOpenDialogCo();
+    uint o; d.GetOptions(out o); d.SetOptions(o | 0x20 | 0x40);  // FOS_PICKFOLDERS | FOS_FORCEFILESYSTEM
+    d.SetTitle("Ordner mit den Aufnahmen w\u00e4hlen"); d.SetOkButtonLabel("Ordner w\u00e4hlen");
+    if (!String.IsNullOrEmpty(start)) {
+      try { var g = typeof(IShellItem).GUID; IShellItem s; SHCreateItemFromParsingName(start, IntPtr.Zero, ref g, out s); d.SetFolder(s); } catch { }
+    }
+    if (d.Show(owner) != 0) return "";  // cancelled
+    IShellItem r; d.GetResult(out r); string p; r.GetDisplayName(0x80058000, out p); return p;  // SIGDN_FILESYSPATH
+  }
+}
+'@
 $f = New-Object System.Windows.Forms.Form -Property @{TopMost=$true; ShowInTaskbar=$false}
-$d = New-Object System.Windows.Forms.FolderBrowserDialog
-$d.Description = 'Ordner mit den Aufnahmen wählen'
-if ($d.ShowDialog($f) -eq 'OK') { [Console]::OutputEncoding = [Text.Encoding]::UTF8; $d.SelectedPath }"""
+$p = [FolderPicker]::Pick($f.Handle, $env:PICK_START)
+[Console]::OutputEncoding = [Text.Encoding]::UTF8; $p"""
 
 
 def pick_folder():
-    """Native folder dialog (Windows); '' when cancelled."""
-    r = subprocess.run(["powershell", "-NoProfile", "-STA", "-Command", PICK_PS], capture_output=True,
+    """Native folder dialog (Windows Explorer style), opening at the current root; '' when cancelled."""
+    env = dict(os.environ, PICK_START=str(root_dir() or ""))
+    r = subprocess.run(["powershell", "-NoProfile", "-STA", "-Command", PICK_PS], capture_output=True, env=env,
                        timeout=600, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
     return r.stdout.decode("utf-8", "replace").strip()
 

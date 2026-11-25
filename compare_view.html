@@ -440,6 +440,23 @@ body.helpmode [data-help]:hover { outline: 1.5px dashed rgba(117,184,255,.6); ou
 .tnum small { color: var(--n-faint); display: block; font-size: 10.5px; }
 .scrim { position: absolute; inset: 0; background: rgba(0,0,0,.35); z-index: 15; }
 #updScrim { position: fixed; }
+/* Warnung: Xsens und GemX passen zeitlich schlecht zusammen, die Dateien gehören vielleicht nicht zusammen */
+.syncw { display: inline-flex; align-items: center; gap: 6px; width: fit-content; margin-top: 6px; padding: 2px 9px; border-radius: 999px; font-size: 11.5px; font-weight: 600;
+  color: var(--n-low); background: color-mix(in srgb, var(--n-low) 13%, transparent); cursor: help; }
+.syncw::before { content: "!"; display: grid; place-items: center; width: 13px; height: 13px; border-radius: 50%; background: var(--n-low); color: var(--n-surface); font-size: 10px; }
+#evSub .syncw { margin: 0 0 0 10px; vertical-align: 1px; }
+.thumb .syncw { position: absolute; right: 8px; bottom: 8px; z-index: 2; margin: 0; background: color-mix(in srgb, var(--n-low) 24%, var(--n-surface)); }
+/* Namensschema: erscheint neben dem Datei- oder Ordnerdialog */
+.nhint { position: fixed; z-index: 40; top: 16px; left: 50%; transform: translateX(-50%); width: min(760px, calc(100vw - 32px)); border-radius: 22px; padding: 16px 20px 14px; pointer-events: none; }
+.nhint h2 { margin: 0 0 4px; font: 600 15px var(--n-font-display); }
+.nhint p { margin: 0 0 10px; font-size: 13px; line-height: 1.5; color: var(--n-dim); }
+.nhint p:last-child { margin: 10px 0 0; }
+.nhint .nrows { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 5px 14px; align-items: baseline; font-size: 13px; }
+.nhint .nrows > * { padding: 3px 0; }
+.nhint .nrows .on { color: var(--gx); font-weight: 600; }
+.nhint code { font: 12.5px ui-monospace, Consolas, monospace; color: var(--n-ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nhint code b { color: var(--gx); font-weight: 600; }
+.nhint small { color: var(--n-faint); font-size: 12px; }
 .report.upd { position: fixed; inset: 90px max(20px, calc(50% - 300px)) auto; max-height: calc(100vh - 180px); }
 .report.upd a { color: var(--gx); }
 .report { position: absolute; inset: 70px max(20px, calc(50% - 400px)) 90px; border-radius: 28px; padding: 24px 28px; z-index: 20; display: grid; grid-template-rows: auto 1fr; gap: 14px; }
@@ -545,6 +562,7 @@ html.swapping .lcard { view-transition-name: none !important; }
       <div class="gi gnew"><i class="gdot" id="gNewDot"></i><input id="gNew" maxlength="60" placeholder="Neue Gruppe …" aria-label="Neue Gruppe: Name eintippen, Enter legt sie an"></div></div>
   </div>
   </div>
+  <div class="nhint n-glass panel" id="nameHint" role="note" aria-live="polite" hidden></div>
   <input type="file" id="fAny" multiple accept=".mvnx,.pt,video/*" hidden>
   <input type="file" id="fmvnx" accept=".mvnx" hidden>
   <input type="file" id="fgemx" accept=".pt" hidden>
@@ -737,6 +755,8 @@ function itemState(it) {
   if (it.src === "static") return "xs";  // Vergleich.html: Xsens without GemX joints
   return it.has.mvnx && it.has.gemx ? "todo" : "miss";
 }
+const syncBad = sy => sy?.angle_err_deg >= TH.sync[1];
+const syncWarn = sy => `<span class="syncw" title="Xsens und GemX passen zeitlich schlecht zusammen: an der besten Startstelle weichen die Gelenkwinkel im Mittel um ${num(sy.angle_err_deg, 1)}° ab (üblich unter ${TH.sync[1]}°). Vielleicht gehören die Dateien nicht zur selben Bewegung, oder GemX lief nicht auf dem 30-fps-Video. Im Video prüfen.">Zuordnung prüfen · ${num(sy.angle_err_deg)}°</span>`;
 function cardHtml(it, pose) {  // pose: place on a cluster pile (no own view transition there, copies may repeat)
   const st = itemState(it), c = it.card, s = c?.summary;
   const status = { busy: '<span class="spin"></span>rechnet', todo: "bereit", xs: "nur Xsens", miss: it.has.mvnx ? "GemX fehlt" : "Xsens fehlt" }[st];
@@ -756,7 +776,7 @@ function cardHtml(it, pose) {  // pose: place on a cluster pile (no own view tra
   else if (st === "busy") body = `<div class="prog"><i></i></div>`;
   const sub = [it.view, it.date, s ? num(s.frames / FPS, 1) + " s" : "", it.src === "local" ? "abgelegt" : ""].filter(Boolean).join(" · ");
   return `<div class="lcard n-card lift ${st}${it.open && s && !pose ? " open" : ""}${libPending ? " pending" : ""}" data-id="${esc(it.id)}" style="${pose ? pose + ";view-transition-name:none" : "view-transition-name:" + vtName(it)}">
-    <div class="thumb${loading ? " loading" : ""}">${thumb}${st === "busy" ? `<div class="calc">${markSvg(true)}<b>Vergleiche …</b><small class="el">${elapsed(it)}</small></div>` : ""}<span class="nr">${esc(it.nr || "–")}</span>${status && st !== "busy" ? `<span class="status n-glass">${status}</span>` : ""}<span class="dots">${dots}</span></div>
+    <div class="thumb${loading ? " loading" : ""}">${thumb}${st === "busy" ? `<div class="calc">${markSvg(true)}<b>Vergleiche …</b><small class="el">${elapsed(it)}</small></div>` : ""}<span class="nr">${esc(it.nr || "–")}</span>${syncBad(c?.sync) ? syncWarn(c.sync) : ""}${status && st !== "busy" ? `<span class="status n-glass">${status}</span>` : ""}<span class="dots">${dots}</span></div>
     <div class="body"><div class="tt"><span class="nm" title="${esc(it.name)}">${esc(it.name)}</span>${gselHtml(it)}${s ? `<button class="tog n-ico sm" data-i="down" data-tog title="Mehr"></button>` : ""}</div>
     <div class="sub">${esc(sub)}</div>${body}</div>${libPending ? SKL : ""}</div>`;
 }
@@ -1441,10 +1461,10 @@ async function loadLibrary(json) {
   if (libPending) revealCards();
 }
 async function pickRoot() {
-  $("#rootBtn").disabled = true;
-  try { const r = await api("api/pick-root"); if (r.picked) await loadLibrary(); }
+  $("#rootBtn").disabled = true; nameHint("folder");
+  try { const r = await api("api/pick-root"); nameHint(false); if (r.picked) await loadLibrary(); }
   catch (e) { toast(e.message, true); }
-  finally { $("#rootBtn").disabled = false; }
+  finally { $("#rootBtn").disabled = false; nameHint(false); }
 }
 async function openItem(it) {
   if (!await ensureRec(it)) return swRelease(true);
@@ -1525,11 +1545,32 @@ $("#go").onclick = () => {
   const it = localItem(pending, (pending.mvnx && keyOf(pending.mvnx, "mvnx")) || null);
   items.unshift(it); pending = {}; renderSlots(); openItem(it);
 };
-$("#pickAny").onclick = () => $("#fAny").click();
+// Namensschema neben dem Datei- bzw. Ordnerdialog: so findet das Programm zusammengehörige Dateien
+function nameHint(mode, kind) {
+  const el = $("#nameHint");
+  if (!mode) return reveal(el, false);
+  const ex = items.map(it => it.stem).find(s => s && KEY.test(s)), pat = "<b>NNN</b>_<b>JJJJMMTT</b>_Beschreibung";
+  const row = (k, label, file, note) => `<span class="${kind === k ? "on" : ""}">${label}</span><code>${pat}${file}</code><small>${note}</small>`;
+  el.innerHTML = `<h2>So werden die Dateien einer Bewegung zugeordnet</h2>
+    <p>Gleiche Nummer <b>NNN</b> (drei Ziffern) und gleiches Datum <b>JJJJMMTT</b> am Namensanfang ergeben eine Aufnahme; der Rest des Namens ist frei.${ex ? ` Beispiel aus deinem Ordner: <code>${esc(ex)}</code>` : ""}</p>
+    <div class="nrows">${row("mvnx", "Xsens", ".mvnx", "")}${row("gemx", "GemX", "/hpe_results.pt", "der Ordnername zählt")}${row("video", "Video", "_cut_30fps.mp4", "optional · das 30-fps-Video, auf dem GemX lief")}</div>
+    <p>${mode === "folder" ? "Unterordner werden mit durchsucht. Dateien ohne dieses Muster werden übergangen; eine Aufnahme braucht Xsens und GemX."
+      : kind ? "Einzeln gewählt zählt der Name nicht: die Datei kommt in dieses Feld."
+      : "Je Art genau eine Datei: sie gehören zusammen, egal wie sie heißen. Mehrere Aufnahmen auf einmal besser als Ordner ins Fenster ziehen, sonst fehlt bei hpe_results.pt der Ordnername."}</p>`;
+  reveal(el, true);
+}
+function pickFiles(inp, kind) {  // the hint stays while the system dialog is open
+  nameHint("files", kind);
+  const done = () => { nameHint(false); inp.removeEventListener("cancel", done); removeEventListener("focus", late); };
+  const late = () => setTimeout(done, 400);  // without a cancel event: the window gets focus back
+  inp.addEventListener("cancel", done); inp.addEventListener("change", done, { once: true }); addEventListener("focus", late, { once: true });
+  inp.click();
+}
+$("#pickAny").onclick = () => pickFiles($("#fAny"));
 $("#fAny").onchange = e => { takeFiles([...e.target.files]); e.target.value = ""; };
 for (const el of $$("[data-slot]")) {
   const inp = $("#f" + el.dataset.slot);
-  el.onclick = () => inp.click();
+  el.onclick = () => pickFiles(inp, el.dataset.slot);
   inp.onchange = () => { if (inp.files[0]) { pending[el.dataset.slot] = inp.files[0]; renderSlots(); } inp.value = ""; };
 }
 let dragDepth = 0;
@@ -1563,6 +1604,7 @@ function openEval(it) {
   $("#evTitle").textContent = `${r.nr ? r.nr + " · " : ""}${r.name}`;
   const sub = [r.view, r.date, num(ev.N / FPS, 1) + " s"].filter(Boolean).join(" · ");
   $("#evSub").innerHTML = G ? `<i class="gdot" style="--c:${gcolor(G.g)};display:inline-block;width:8px;height:8px;margin:0 6px 0 0"></i>${esc(G.g.name)} · ${G.k + 1} von ${G.list.length}${G.open ? ` (${G.open} offen)` : ""} · ${esc(sub)}` : esc(sub);
+  if (syncBad(r.sync)) $("#evSub").insertAdjacentHTML("beforeend", syncWarn(r.sync));
   $("#ev").classList.toggle("grp", !!G); $("#gRail").hidden = $("#gAna").hidden = $("#gSplit").hidden = !G; applySplit();
   $("#evSub").title = r.stem || "";
   $("#gxTag").hidden = !ev.s; $("#hint").hidden = false; $("#camBtn").hidden = !ev.s?.cam;
@@ -2447,7 +2489,7 @@ function reportHtml(it, r = it.rec) {
   if (s.pa_mpjpe_fix_mm != null) notes.push(`Die Gelenke sind bei GemX (SOMA) und Xsens etwas anders definiert. Zieht man je Gelenk diesen festen Versatz ab, sinkt der Haltungsfehler von ${num(pa)} auf ${num(s.pa_mpjpe_fix_mm)} mm; ${s.pa_mpjpe_fix_mm < 0.8 * pa ? "ein großer Teil" : "ein Teil"} der Abweichung ist also systematisch und kein Tracking-Fehler.`);
   else if (ang.slice(-2).some(a => a[0] === "Schulter")) notes.push("Schulter und Hüfte sind bei GemX (SOMA) und Xsens etwas anders definiert. Ein Teil der Abweichung an Schulter und Ellbogen ist deshalb systematisch und kein Tracking-Fehler.");
   if (Math.abs(s.scale - 1) > 0.05) notes.push(`GemX zeichnet die Person ${num(Math.abs(s.scale - 1) * 100)} % ${s.scale > 1 ? "kleiner" : "größer"} als Xsens (Größenfaktor ${num(s.scale, 2)}). Das betrifft den Abstand im Raum, nicht die Haltung.`);
-  if (r.sync) notes.push(`Den Zeitversatz hat das Programm über die Gelenkwinkel gefunden: GemX beginnt bei ${num(r.sync.xsens_start_s, 2)} s der MVNX (Winkelabweichung dort ${num(r.sync.angle_err_deg, 1)}°).` + (r.sync.angle_err_deg > TH.sync[1] ? " Das ist unsicher; bitte im Video prüfen." : ""));
+  if (r.sync) notes.push(`Den Zeitversatz hat das Programm über die Gelenkwinkel gefunden: GemX beginnt bei ${num(r.sync.xsens_start_s, 2)} s der MVNX (Winkelabweichung dort ${num(r.sync.angle_err_deg, 1)}°).` + (syncBad(r.sync) ? " Das ist ungewöhnlich hoch: Vielleicht gehören die Dateien nicht zur selben Bewegung. Bitte im Video prüfen." : ""));
   if (s.lag_frames) notes.push(`Nach der Synchronisation bleibt ein Restversatz von ${s.lag_frames} Frame${Math.abs(s.lag_frames) === 1 ? "" : "s"}.`);
   return sec("Kurzfassung", kurz) + sec("Stärken", plus) + sec("Schwächen", minus) + sec("Hinweise", notes) + detailHtml(s);
 }
